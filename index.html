@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#030304">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Festi Crew">
 <title>Festi Crew</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap">
@@ -416,6 +423,7 @@ const FIREBASE_CONFIG = {
     <span class="mode" id="mode"></span>
     <div class="sp"></div>
     <select id="evpick" class="evpick" aria-label="Evento"></select>
+    <button class="btn go" data-act="install" id="installBtn" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg>Descargar app</button>
     <button class="btn" data-act="invite">Invitar</button>
     <div id="me"></div>
   </div>
@@ -701,6 +709,7 @@ function showGate(){
     <div class="label" style="margin-bottom:8px">Crew</div>
     <div class="codebox" style="margin-bottom:18px"><code>${esc(CREW)}</code><span class="dim" style="font-size:13px;flex:1;min-width:160px">Entra con el link de tus amigos para caer en su mismo crew.</span></div>
     <button class="btn pri" type="submit" style="justify-content:center;padding:13px">Entrar al crew</button>
+    ${isStandalone()?'':'<button class="btn go" type="button" data-act="install" style="justify-content:center;margin-top:10px">Descargar la app</button>'}
     <p class="faint" style="font-size:12px;margin:12px 0 0">${Store.live?'Conectado en tiempo real.':'Modo local: los datos se guardan solo en este dispositivo hasta que configures Firebase.'}</p>
   </form>`;
   g.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{ color=b.dataset.c; g.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
@@ -1223,7 +1232,37 @@ document.addEventListener('click',e=>{
   else if(act==='profile') openProfile();
   else if(act==='invite') invite();
   else if(act==='seed') seed();
+  else if(act==='install') installApp();
 });
+
+/* ================= INSTALAR LA APP ================= */
+function isStandalone(){ return matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }
+let deferredInstall=null;
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); deferredInstall=e; syncInstallBtn(); });
+addEventListener('appinstalled',()=>{ deferredInstall=null; syncInstallBtn(); toast('Festi Crew instalada en tu pantalla de inicio'); });
+function syncInstallBtn(){ const b=$('#installBtn'); if(b) b.hidden=isStandalone(); }
+async function installApp(){
+  if(deferredInstall){ deferredInstall.prompt(); const r=await deferredInstall.userChoice.catch(()=>null); deferredInstall=null; if(r&&r.outcome==='accepted') toast('Instalando…'); return; }
+  const ua=navigator.userAgent, ios=/iPhone|iPad|iPod/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), android=/Android/i.test(ua);
+  const step=(n,t)=>`<div style="display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--edge)"><span class="mono" style="font-size:22px;font-weight:800;color:var(--red-hi)">0${n}</span><div>${t}</div></div>`;
+  const iosSteps=step(1,'Abre esta página en <b>Safari</b>.')+step(2,'Toca el botón <b>Compartir</b> (el cuadro con la flecha hacia arriba).')+step(3,'Elige <b>Agregar a pantalla de inicio</b> y luego <b>Agregar</b>.');
+  const andSteps=step(1,'Abre esta página en <b>Chrome</b>.')+step(2,'Toca el menú <b>⋮</b> arriba a la derecha.')+step(3,'Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.');
+  const pcSteps=step(1,'Abre esta página en <b>Chrome</b> o <b>Edge</b>.')+step(2,'Haz clic en el ícono de instalar <b>⊕</b> a la derecha de la barra de direcciones.')+step(3,'Confirma con <b>Instalar</b>.');
+  const local=location.protocol==='file:';
+  form.innerHTML=`<h2>Descargar la app</h2>
+    <p class="dim" style="margin-top:0">Queda como app en tu pantalla de inicio, se abre a pantalla completa y funciona aunque no haya señal en el festival.</p>
+    ${local?'<p class="mode" style="display:block;text-transform:none;letter-spacing:0;font-size:13px;border-radius:9px;padding:8px 10px">Para instalarla, ábrela desde tu link de GitHub Pages (https). Abierta como archivo no se puede instalar.</p>':''}
+    <div class="label" style="margin:6px 0 2px">${ios?'En iPhone':android?'En Android':'En tu compu'}</div>
+    ${ios?iosSteps:android?andSteps:pcSteps}
+    ${ios||android?'':`<div class="label" style="margin:16px 0 2px">En el celular</div>${step(1,'iPhone: Safari → Compartir → Agregar a pantalla de inicio.')}${step(2,'Android: Chrome → menú ⋮ → Instalar app.')}`}
+    <div class="foot" style="margin-top:14px"><button type="button" class="btn pri" data-act="close">Entendido</button></div>`;
+  dlg.showModal();
+}
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(e=>console.warn('SW',e)));
+}
+{ const t=params.get('tab'); if(t && ['ahora','cartel','timeline','crew','eventos'].includes(t)) S.tab=t; }
+syncInstallBtn();
 
 Store.init();
 })();
