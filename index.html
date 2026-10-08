@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07051A">
+<title>Festi Crew</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap">
+<style>
+/* Concepto: el festival como constelación. Cielo profundo animado detrás, paneles de vidrio ahumado encima,
+   un solo gradiente de neón (magenta → violeta → cian) para todo lo que el crew elige. Tema oscuro deliberado. */
+:root{
+  color-scheme:dark;
+  --void:#07051A; --ink:#F4F0FF; --dim:#A9A1C9; --faint:#6F6894;
+  --glass:rgba(22,16,52,.52); --glass-2:rgba(38,28,82,.55); --glass-hi:rgba(255,255,255,.07);
+  --edge:rgba(196,180,255,.16); --edge-hi:rgba(220,208,255,.34);
+  --mag:#FF3DA5; --vio:#8B6CFF; --cy:#38E1FF; --gold:#FFD23F;
+  --neon:linear-gradient(100deg,var(--mag),var(--vio) 52%,var(--cy));
+  --ok:#47E6A2; --warn:#FFC14D; --bad:#FF5C7A;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:18px; --blur:saturate(150%) blur(16px);
+}
+*{box-sizing:border-box}
+html{background:var(--void)}
+body{margin:0;min-height:100dvh;background:var(--void);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-inline:16px;padding-block:env(safe-area-inset-top,0px) calc(110px + env(safe-area-inset-bottom,0px));-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.08}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.dim{color:var(--dim)} .faint{color:var(--faint)}
+.label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--dim)}
+.grad{background:var(--neon);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- cielo ---------- */
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:-2;display:block}
+.nebula{position:fixed;inset:-20%;z-index:-3;pointer-events:none;
+  background:
+   radial-gradient(38% 30% at 18% 22%,rgba(139,108,255,.42),transparent 70%),
+   radial-gradient(34% 28% at 85% 18%,rgba(255,61,165,.30),transparent 70%),
+   radial-gradient(40% 34% at 70% 82%,rgba(56,225,255,.20),transparent 70%),
+   radial-gradient(50% 40% at 25% 90%,rgba(110,40,200,.30),transparent 70%),
+   var(--void);
+  filter:blur(10px)}
+@media (prefers-reduced-motion:no-preference){ .nebula{animation:drift 60s ease-in-out infinite alternate} }
+@keyframes drift{to{transform:translate3d(-3%,2%,0) scale(1.08) rotate(3deg)}}
+
+.wrap{max-width:1120px;margin:0 auto;position:relative}
+.glass{background:var(--glass);border:1px solid var(--edge);border-radius:var(--r);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  box-shadow:inset 0 1px 0 var(--glass-hi),0 20px 50px -30px rgba(0,0,0,.8)}
+
+/* ---------- barra superior ---------- */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:16px 14px}
+.brand{font-family:var(--f-display);font-weight:900;font-size:18px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.orb{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 32% 30%,#fff 0 8%,var(--cy) 22%,var(--vio) 55%,var(--mag) 85%);box-shadow:0 0 18px rgba(139,108,255,.8);position:relative}
+.orb::after{content:"";position:absolute;inset:-5px -9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);transform:rotate(-24deg) scaleY(.32)}
+.sp{flex:1}
+.mode{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid rgba(255,193,77,.4);color:var(--warn)}
+.mode.live{border-color:rgba(71,230,162,.45);color:var(--ok)}
+.mode.live::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:6px;box-shadow:0 0 8px var(--ok);vertical-align:1px}
+.evpick{appearance:none;background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border:1px solid var(--edge);border-radius:999px;padding:9px 34px 9px 14px;font-weight:700;max-width:100%;
+  background-image:linear-gradient(45deg,transparent 50%,var(--dim) 50%),linear-gradient(135deg,var(--dim) 50%,transparent 50%);
+  background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px;background-repeat:no-repeat}
+.evpick option{background:#1a1238}
+.mebtn{border:0;background:transparent;display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px;padding:0}
+
+/* ---------- héroe ---------- */
+.hero{position:relative;padding:26px 24px 20px;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end;border-radius:26px}
+.hero::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:var(--neon);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}
+.hero .kick{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.hero h1{font-size:clamp(30px,6.6vw,64px);font-weight:900;letter-spacing:-.03em}
+.hero .meta{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:12px;color:var(--dim);font-size:14px}
+.hero .meta b{color:var(--ink);font-weight:700}
+.cd{display:flex;gap:8px}
+.cd div{min-width:66px;text-align:center;padding:10px 8px;border-radius:14px;background:rgba(7,5,26,.55);border:1px solid var(--edge)}
+.cd b{display:block;font-family:var(--f-mono);font-size:clamp(24px,4.4vw,36px);font-weight:800;line-height:1}
+.cd span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);font-weight:800}
+.rsvp{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:16px;border-top:1px solid var(--edge)}
+.rsvp .q{font-weight:800;margin-right:2px}
+.rbtn{border:1px solid var(--edge-hi);background:rgba(255,255,255,.04);border-radius:999px;padding:8px 16px;font-weight:700;font-size:14px}
+.rbtn[aria-pressed="true"]{background:var(--neon);border-color:transparent;color:#fff;box-shadow:0 0 22px rgba(255,61,165,.45)}
+.rsvp .going{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim)}
+
+/* ---------- navegación ---------- */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:20;display:flex;gap:2px;padding:6px;border-radius:999px;
+  max-width:calc(100vw - 24px);overflow-x:auto;scrollbar-width:none}
+.tab{border:0;background:transparent;padding:10px 14px;border-radius:999px;font-weight:800;font-size:13px;color:var(--dim);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab svg{width:17px;height:17px}
+.tab[aria-selected="true"]{background:var(--neon);color:#fff;box-shadow:0 0 22px rgba(139,108,255,.55)}
+.tab .live-dot{width:7px;height:7px;border-radius:50%;background:var(--bad);box-shadow:0 0 8px var(--bad)}
+@media (max-width:520px){ .tab{padding:10px 11px} .tab .tlb{display:none} .tab[aria-selected="true"] .tlb{display:inline} }
+
+main{margin-top:22px}
+.sect{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-block:6px 14px}
+.sect h2{font-size:clamp(20px,3.4vw,28px);font-weight:900;letter-spacing:-.02em}
+
+/* ---------- controles ---------- */
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-block:0 16px}
+.chip{border:1px solid var(--edge);background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-radius:999px;padding:7px 13px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.chip .dot{width:8px;height:8px;border-radius:50%}
+.chip[aria-pressed="true"]{background:rgba(255,255,255,.92);color:#120B2E;border-color:transparent}
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:rgba(7,5,26,.6);border:1px solid var(--edge)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;color:var(--dim)}
+.seg button[aria-pressed="true"]{background:var(--glass-2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--edge-hi)}
+.search{flex:1 1 180px;min-width:0;border:1px solid var(--edge);background:rgba(7,5,26,.55);border-radius:999px;padding:9px 15px}
+.search::placeholder,.inp::placeholder{color:var(--faint)}
+.btn{border:1px solid var(--edge-hi);background:rgba(255,255,255,.05);border-radius:12px;padding:9px 15px;font-weight:800;font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--neon);border-color:transparent;color:#fff;box-shadow:0 8px 24px -8px rgba(255,61,165,.7)}
+.btn.danger{color:var(--bad);border-color:rgba(255,92,122,.5)}
+.btn.ghost{background:transparent;border-color:transparent}
+
+/* ---------- cartel ---------- */
+.tier{margin-block:4px 30px}
+.tier>header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.tier>header h3{font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.tier>header .ln{flex:1;height:1px;background:linear-gradient(90deg,var(--edge-hi),transparent)}
+.grid{display:grid;gap:12px}
+.g1{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.g2{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px}
+
+.card{position:relative;border-radius:20px;overflow:hidden;min-width:0;isolation:isolate;
+  background:var(--glass);border:1px solid var(--edge);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.card .ph{position:relative;display:block;width:100%;aspect-ratio:4/3;max-width:100%;border:0;padding:0;cursor:pointer;overflow:hidden}
+.g2 .card .ph{aspect-ratio:1/1}
+.ph img,.mono-av{width:100%;height:100%;object-fit:cover;display:block}
+.mono-av{display:grid;place-items:center;font-family:var(--f-display);font-weight:900;color:#fff;letter-spacing:-.03em;position:relative}
+.mono-av::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.28),transparent 45%)}
+.card .ph .mono-av{font-size:46px}
+.ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(7,5,26,.92));pointer-events:none}
+.card .over{position:absolute;left:12px;right:12px;bottom:10px;z-index:2;pointer-events:none}
+.card .over h4{margin:0;font-family:var(--f-display);font-weight:700;font-size:18px;line-height:1.05;letter-spacing:-.01em;overflow-wrap:anywhere;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.g2 .card .over h4{font-size:15px}
+.tagrow{position:absolute;left:10px;top:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap;z-index:2;pointer-events:none}
+.tag{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:rgba(7,5,26,.7);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid var(--edge)}
+.tag.spc{background:var(--gold);color:#1a1238;border-color:transparent}
+.card .bd{padding:10px 12px 12px;display:flex;flex-direction:column;gap:9px}
+.slot{display:flex;flex-wrap:wrap;gap:6px;font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:3px 8px;background:rgba(255,255,255,.07);font-weight:700}
+.pill.tbd{background:transparent;border:1px dashed var(--edge-hi);color:var(--dim)}
+.pill .dot{width:7px;height:7px;border-radius:50%}
+.vrow{display:flex;align-items:center;gap:8px}
+.vote{position:relative;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--edge-hi);background:rgba(255,255,255,.04);border-radius:999px;padding:6px 13px 6px 10px;font-weight:800;font-size:13px;transition:transform .15s}
+.vote svg{width:16px;height:16px}
+.vote:active{transform:scale(.92)}
+.vote[aria-pressed="true"]{background:var(--neon);border-color:transparent;color:#fff;box-shadow:0 0 20px rgba(255,61,165,.55)}
+.vote .lbl{font-size:12px}
+
+/* tarjeta elegida: borde de neón girando + halo */
+.card.on{box-shadow:0 0 0 1px transparent,0 0 34px -4px rgba(255,61,165,.55),0 0 60px -10px rgba(56,225,255,.45);transform:translateY(-2px)}
+.card.on::before{content:"";position:absolute;inset:-2px;border-radius:22px;z-index:-1;background:conic-gradient(from var(--a,0deg),var(--mag),var(--vio),var(--cy),var(--mag))}
+.card.on::after{content:"";position:absolute;inset:1px;border-radius:19px;z-index:-1;background:#120c30}
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@media (prefers-reduced-motion:no-preference){ .card.on::before{animation:spin 6s linear infinite} }
+@keyframes spin{to{--a:360deg}}
+.check{position:absolute;right:10px;top:10px;z-index:3;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--neon);box-shadow:0 0 14px rgba(255,61,165,.8);color:#fff}
+.check svg{width:15px;height:15px}
+
+.row{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:11px;align-items:center;padding:8px 10px 8px 8px;border-radius:16px;min-width:0;isolation:isolate;
+  background:var(--glass);border:1px solid var(--edge);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);transition:box-shadow .25s}
+.row .av{width:48px;height:48px;border-radius:12px;overflow:hidden;border:0;padding:0;cursor:pointer}
+.row .av .mono-av{font-size:16px}
+.row .nm b{display:block;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .nm small{color:var(--dim);font-size:12px;display:flex;gap:6px;align-items:center;overflow:hidden;white-space:nowrap}
+.row.on{border-color:transparent;box-shadow:0 0 0 1.5px var(--mag),0 0 24px -4px rgba(255,61,165,.6)}
+
+.stack{display:flex;align-items:center}
+.pav{display:inline-grid;place-items:center;border-radius:50%;color:#fff;font-weight:900;font-family:var(--f-display);overflow:hidden;flex:none}
+.pav img{width:100%;height:100%;object-fit:cover}
+.stack .pav,.stack .more{width:24px;height:24px;font-size:9px;border:2px solid #150e36;margin-left:-7px}
+.stack .pav:first-child{margin-left:0}
+.stack .more{display:grid;place-items:center;border-radius:50%;background:var(--glass-2);font-size:10px;font-weight:800}
+.mebtn .pav{width:30px;height:30px;font-size:11px;box-shadow:0 0 0 2px rgba(255,255,255,.2)}
+
+/* partículas del voto */
+.burst{position:fixed;pointer-events:none;z-index:60;width:8px;height:8px;border-radius:50%;left:0;top:0}
+
+/* ---------- timeline ---------- */
+.tlwrap{padding:14px 0 10px;border-radius:24px;overflow:hidden}
+.tlhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:0 16px 12px}
+.tlstats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.tlstats b{color:var(--ink);font-family:var(--f-mono)}
+.tlscroll{overflow-x:auto;padding-bottom:12px;overscroll-behavior-x:contain;position:relative}
+.tl{position:relative;display:grid;min-width:100%}
+.tl .lanehd{position:sticky;top:0;z-index:4;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);text-align:center;padding:8px 6px;border-bottom:1px solid var(--edge);background:rgba(12,8,34,.7)}
+.tl .axis{position:relative}
+.tl .axis span{position:absolute;right:8px;transform:translateY(-50%);font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--dim)}
+.tl .lane{position:relative;border-left:1px solid rgba(196,180,255,.08)}
+.tl .hr{position:absolute;left:0;right:0;height:1px;background:rgba(196,180,255,.08)}
+.tl .hr.half{background:rgba(196,180,255,.035)}
+.blk{position:absolute;left:5px;right:5px;border-radius:12px;padding:7px 9px;overflow:hidden;display:flex;gap:8px;align-items:flex-start;
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));border:1px solid var(--edge);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s}
+.blk::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--vio))}
+.blk .av{width:30px;height:30px;border-radius:8px;overflow:hidden;flex:none}
+.blk .av .mono-av{font-size:11px}
+.blk b{display:block;font-size:13px;font-weight:800;line-height:1.15;overflow-wrap:anywhere}
+.blk small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--dim)}
+.blk .vc{position:absolute;right:7px;bottom:6px;font-family:var(--f-mono);font-size:11px;font-weight:800;color:var(--dim)}
+.blk.pick{background:linear-gradient(160deg,rgba(255,61,165,.30),rgba(139,108,255,.22) 60%,rgba(56,225,255,.16));border-color:rgba(255,255,255,.35);box-shadow:0 0 26px -6px rgba(255,61,165,.7)}
+.blk.ghost{opacity:.42}
+.blk.ghost:hover{opacity:.85}
+.blk.clash{box-shadow:0 0 0 1.5px var(--bad),0 0 24px -4px rgba(255,92,122,.8)}
+@media (prefers-reduced-motion:no-preference){ .blk.clash{animation:pulse 1.8s ease-in-out infinite} }
+@keyframes pulse{50%{box-shadow:0 0 0 1.5px var(--bad),0 0 34px 0 rgba(255,92,122,.55)}}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--bad);box-shadow:0 0 12px var(--bad);z-index:5}
+.nowline::before{content:"AHORA";position:absolute;left:6px;top:-18px;font-size:10px;font-weight:800;letter-spacing:.12em;color:var(--bad)}
+
+/* ruta estimada (sin horarios) */
+.route{position:relative;padding:8px 0 8px 34px}
+.route::before{content:"";position:absolute;left:13px;top:12px;bottom:12px;width:2px;background:linear-gradient(var(--cy),var(--vio),var(--mag));box-shadow:0 0 12px rgba(139,108,255,.8);border-radius:2px}
+.stop{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-radius:16px;margin-bottom:10px}
+.stop::before{content:"";position:absolute;left:-27px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:#0d0828;border:2px solid var(--cy);box-shadow:0 0 10px var(--cy)}
+.stop.pick::before{background:var(--mag);border-color:#fff;box-shadow:0 0 14px var(--mag)}
+.stop.head{padding:14px}
+.stop.head::before{width:16px;height:16px;margin-top:-8px;left:-29px;background:var(--gold);border-color:#fff;box-shadow:0 0 18px var(--gold)}
+.stop .av{width:52px;height:52px;border-radius:13px;overflow:hidden}
+.stop .av .mono-av{font-size:17px}
+.stop b{font-family:var(--f-display);font-weight:700;font-size:15px;line-height:1.1;display:block;overflow-wrap:anywhere}
+.stop.head b{font-size:19px}
+.stop small{color:var(--dim);font-size:12px}
+.estimado{display:inline-flex;gap:6px;align-items:center;font-size:12px;font-weight:700;color:var(--warn);border:1px dashed rgba(255,193,77,.5);border-radius:999px;padding:4px 10px}
+
+/* ---------- ahora ---------- */
+.now{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px}
+@media (max-width:820px){.now{grid-template-columns:1fr}}
+.clock{padding:22px;border-radius:24px;position:relative;overflow:hidden}
+.clock .t{font-family:var(--f-mono);font-weight:800;font-size:clamp(48px,11vw,96px);line-height:.95;letter-spacing:-.04em}
+.clock .t .s{font-size:.4em;color:var(--dim);margin-left:6px}
+.onstage{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.live{display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;align-items:center;padding:12px;border-radius:18px;background:linear-gradient(120deg,rgba(255,61,165,.25),rgba(139,108,255,.18));border:1px solid rgba(255,255,255,.25)}
+.live .av{width:64px;height:64px;border-radius:14px;overflow:hidden}
+.live .av .mono-av{font-size:20px}
+.live b{font-family:var(--f-display);font-size:20px;font-weight:700;display:block;line-height:1.1}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:12px;margin-right:6px}
+.eq i{width:3px;background:var(--bad);border-radius:1px;height:40%}
+@media (prefers-reduced-motion:no-preference){ .eq i{animation:eq .9s ease-in-out infinite} .eq i:nth-child(2){animation-delay:.2s} .eq i:nth-child(3){animation-delay:.45s} }
+@keyframes eq{50%{height:100%}}
+.next{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--edge)}
+.next:last-child{border-bottom:0}
+.next .av{width:44px;height:44px;border-radius:11px;overflow:hidden}
+.next .av .mono-av{font-size:14px}
+.next .in{font-family:var(--f-mono);font-weight:800;font-size:13px;color:var(--cy);text-align:right}
+.meet{padding:20px;border-radius:24px}
+.meet .big{font-family:var(--f-display);font-weight:700;font-size:clamp(20px,3.6vw,28px);line-height:1.15;margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.sim{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-top:14px}
+.sim .inp{width:auto;padding:6px 10px}
+
+/* ---------- crew / eventos ---------- */
+.panel{padding:18px;border-radius:var(--r)}
+.panel h3{font-size:14px;font-weight:700;margin-bottom:12px;letter-spacing:.01em}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px;align-items:start}
+.person{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:11px;align-items:center;padding-block:9px;border-bottom:1px solid var(--edge)}
+.person:last-of-type{border-bottom:0}
+.person .pav{width:38px;height:38px;font-size:13px}
+.person small{display:block;color:var(--dim);font-size:12px}
+.st{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;white-space:nowrap;letter-spacing:.04em}
+.st.yes{background:rgba(71,230,162,.14);color:var(--ok)} .st.maybe{background:rgba(255,193,77,.14);color:var(--warn)} .st.no{background:rgba(255,92,122,.14);color:var(--bad)} .st.none{color:var(--faint)}
+.rank{display:grid;grid-template-columns:22px minmax(0,1fr) 30px;gap:4px 8px;align-items:center;font-size:14px;padding-block:5px}
+.rank .bar2{grid-column:2/4;height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.rank .bar2 i{display:block;height:100%;background:var(--neon);border-radius:3px;box-shadow:0 0 10px rgba(255,61,165,.6)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;min-width:0}
+.field label{font-size:12px;font-weight:800;color:var(--dim)}
+.inp{width:100%;border:1px solid var(--edge);background:rgba(7,5,26,.6);border-radius:11px;padding:10px 12px}
+.inp option{background:#1a1238}
+textarea.inp{min-height:90px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tbl{overflow-x:auto}
+.tbl table{width:100%;border-collapse:collapse;font-size:13px}
+.tbl td{padding:6px 0;border-bottom:1px dashed var(--edge)}
+.tbl td:last-child{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:10px;font-weight:700}
+.evs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.ev{padding:18px;border-radius:22px;display:flex;flex-direction:column;gap:11px;min-width:0;position:relative}
+.ev.cur{box-shadow:0 0 0 1.5px var(--vio),0 0 40px -10px rgba(139,108,255,.8)}
+.ev h3{font-size:20px;font-weight:900;letter-spacing:-.02em}
+.ev .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.counts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* ---------- diálogos, entrada ---------- */
+dialog{border:1px solid var(--edge-hi);border-radius:22px;padding:0;background:rgba(18,12,46,.92);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);color:var(--ink);width:min(540px,calc(100vw - 32px));max-height:calc(100dvh - 40px);box-shadow:0 30px 80px -20px rgba(0,0,0,.9)}
+dialog::backdrop{background:rgba(4,2,16,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.dlg{padding:22px;display:flex;flex-direction:column;overflow:auto;max-height:calc(100dvh - 40px)}
+.dlg h2{font-size:19px;font-weight:900;margin-bottom:14px;letter-spacing:-.01em}
+.dlg .foot{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
+.dlg .foot .l{margin-right:auto}
+.phedit{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.phedit .av{width:78px;height:78px;border-radius:16px;overflow:hidden;flex:none}
+.phedit .av .mono-av{font-size:24px}
+.gate{min-height:100dvh;display:grid;place-items:center;padding-block:24px}
+.gate .box{width:min(460px,100%);padding:28px;display:flex;flex-direction:column;border-radius:26px}
+.gate h1{font-size:30px;font-weight:900;letter-spacing:-.02em;margin:14px 0 6px}
+.swatches{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.sw{width:32px;height:32px;border-radius:50%;border:3px solid transparent;padding:0;box-shadow:0 0 12px -2px currentColor}
+.sw[aria-pressed="true"]{border-color:#fff}
+.codebox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.codebox code{font-family:var(--f-mono);font-size:18px;font-weight:800;background:rgba(7,5,26,.6);border:1px solid var(--edge);padding:6px 12px;border-radius:10px;letter-spacing:.12em}
+.empty{padding:34px 22px;text-align:center;color:var(--dim);border-radius:22px}
+.empty b{display:block;color:var(--ink);font-family:var(--f-display);font-weight:700;font-size:18px;margin-bottom:6px}
+.note{font-size:13px;color:var(--dim);margin:-6px 0 16px}
+.toast{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(255,255,255,.95);color:#120B2E;padding:10px 18px;border-radius:999px;font-weight:800;font-size:14px;z-index:70;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.preview{font-size:13px;max-height:180px;overflow:auto;border:1px solid var(--edge);border-radius:11px;padding:8px 10px;margin-bottom:12px;background:rgba(7,5,26,.5)}
+.preview div{display:flex;gap:8px;padding:2px 0}
+.preview .x{color:var(--bad)}
+
+@media (max-width:600px){
+  .hero{grid-template-columns:1fr;padding:22px 18px 18px}
+  .cd div{min-width:0;flex:1}
+  .rsvp .going{margin-left:0;width:100%}
+  .g1,.g2{grid-template-columns:1fr 1fr}
+  .card .ph .mono-av{font-size:32px}
+  .card .over h4{font-size:15px}
+  .g2 .card .over h4{font-size:13px}
+  .two{grid-template-columns:1fr}
+  .vote .lbl{display:none}
+}
+@media (prefers-reduced-motion:no-preference){
+  .chip,.tab,.rbtn,.btn{transition:background .2s,color .2s,box-shadow .2s,transform .15s}
+  .card:hover{transform:translateY(-3px)}
+  .fade{animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes up{from{transform:translateY(8px)}}
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* =========================================================
+   1) PEGA AQUÍ LA CONFIGURACIÓN DE TU PROYECTO DE FIREBASE
+   (Consola de Firebase → Configuración del proyecto → Tus apps → Web)
+   Si lo dejas en null, la app funciona en MODO LOCAL (solo en este dispositivo).
+   ========================================================= */
+const FIREBASE_CONFIG = null;
+/* Ejemplo:
+const FIREBASE_CONFIG = {
+  apiKey: "AIza...",
+  authDomain: "mi-crew.firebaseapp.com",
+  projectId: "mi-crew",
+  storageBucket: "mi-crew.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abc123"
+};
+*/
+</script>
+</head>
+<body>
+<div class="nebula" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<div class="gate" id="gate" hidden></div>
+
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <div class="brand"><span class="orb"></span>Festi Crew</div>
+    <span class="mode" id="mode"></span>
+    <div class="sp"></div>
+    <select id="evpick" class="evpick" aria-label="Evento"></select>
+    <button class="btn" data-act="invite">Invitar</button>
+    <div id="me"></div>
+  </div>
+
+  <section class="hero glass" id="hero">
+    <div style="min-width:0">
+      <div class="kick"><span class="label" id="bandKicker">Cargando…</span></div>
+      <h1 id="evName" class="grad">Festi Crew</h1>
+      <div class="meta" id="evMeta"></div>
+    </div>
+    <div class="cd" id="count"></div>
+    <div class="rsvp" id="rsvp"></div>
+  </section>
+
+  <main id="view"></main>
+</div>
+
+<nav class="nav glass" role="tablist" id="tabs" hidden>
+  <button class="tab" role="tab" data-tab="ahora" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.5 8.5a5 5 0 0 0 0 7M15.5 8.5a5 5 0 0 1 0 7"/></svg><span class="tlb">Ahora</span></button>
+  <button class="tab" role="tab" data-tab="cartel" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span class="tlb">Cartel</span></button>
+  <button class="tab" role="tab" data-tab="timeline" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h9M4 12h16M4 18h6"/><circle cx="16" cy="6" r="2"/><circle cx="13" cy="18" r="2"/></svg><span class="tlb">Timeline</span></button>
+  <button class="tab" role="tab" data-tab="crew" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M17 14c2.4 0 4 1.6 4.6 4.5"/></svg><span class="tlb">Crew</span></button>
+  <button class="tab" role="tab" data-tab="eventos" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="tlb">Eventos</span></button>
+</nav>
+
+<dialog id="dlg"><form class="dlg" id="dlgForm" method="dialog"></form></dialog>
+<input type="file" id="photoIn" accept="image/*" hidden>
+
+<script>
+const SEED = {"events":{"edc-mexico-2027":{"name":"EDC México 2027","venue":"Autódromo Hermanos Rodríguez, CDMX","startDate":"2027-02-19","endDate":"2027-02-21","days":[{"id":"2027-02-19","label":"Viernes 19","date":"2027-02-19"},{"id":"2027-02-20","label":"Sábado 20","date":"2027-02-20"},{"id":"2027-02-21","label":"Domingo 21","date":"2027-02-21"}],"stages":["kineticFIELD","circuitGROUNDS","cosmicMEADOW","neonGARDEN","bassPOD","wasteLAND"],"prices":[{"label":"GA 3 días","price":"$254 USD"},{"label":"GA+ 3 días","price":"$299 USD"},{"label":"VIP 3 días","price":"$499 USD"}],"link":"https://mexico.electricdaisycarnival.com","notes":"Cartel por anunciar. Precios de preventa en dólares; también se venden en pesos.","meetup":""},"flow-fest-2026":{"name":"Coca-Cola Flow Fest 2026","venue":"Autódromo Hermanos Rodríguez · Curva 4, CDMX","startDate":"2026-11-28","endDate":"2026-11-29","days":[{"id":"2026-11-28","label":"Sábado 28","date":"2026-11-28"},{"id":"2026-11-29","label":"Domingo 29","date":"2026-11-29"}],"stages":[],"prices":[{"label":"General Fase 1","price":"$3,075 MXN"},{"label":"General Fase 2","price":"$3,571 MXN"},{"label":"General Fase 3","price":"$4,030 MXN"},{"label":"General Fase 4","price":"$4,427 MXN"},{"label":"General Fase 5","price":"$4,681 MXN"},{"label":"Comfort Pass Fase 1","price":"$3,468 MXN"},{"label":"Comfort Pass Fase 2","price":"$3,995 MXN"},{"label":"Comfort Pass Fase 3","price":"$4,469 MXN"},{"label":"Comfort Pass Fase 4","price":"$5,049 MXN"}],"link":"https://www.ticketmaster.com.mx","notes":"Abono de 2 días. Horarios y mapa se publican cerca del evento. Metro L9 Velódromo / Ciudad Deportiva / Puebla.","meetup":""}},"artists":[{"eventId":"flow-fest-2026","name":"Anuel AA","day":"2026-11-28","tier":1,"order":1,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--anuel-aa"},{"eventId":"flow-fest-2026","name":"Tito Double P","day":"2026-11-28","tier":1,"order":2,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--tito-double-p"},{"eventId":"flow-fest-2026","name":"Chencho Corleone","day":"2026-11-28","tier":2,"order":3,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--chencho-corleone"},{"eventId":"flow-fest-2026","name":"Manuel Turizo","day":"2026-11-28","tier":2,"order":4,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--manuel-turizo"},{"eventId":"flow-fest-2026","name":"Ñengo Flow","day":"2026-11-28","tier":2,"order":5,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--nengo-flow"},{"eventId":"flow-fest-2026","name":"Zion","day":"2026-11-28","tier":2,"order":6,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--zion"},{"eventId":"flow-fest-2026","name":"El Bogueto","day":"2026-11-28","tier":2,"order":7,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--el-bogueto"},{"eventId":"flow-fest-2026","name":"Tokischa","day":"2026-11-28","tier":3,"order":8,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--tokischa"},{"eventId":"flow-fest-2026","name":"Kevin Roldán","day":"2026-11-28","tier":3,"order":9,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--kevin-roldan"},{"eventId":"flow-fest-2026","name":"Ken-Y","day":"2026-11-28","tier":3,"order":10,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--ken-y"},{"eventId":"flow-fest-2026","name":"ClarenT","day":"2026-11-28","tier":3,"order":11,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--clarent"},{"eventId":"flow-fest-2026","name":"Noriel","day":"2026-11-28","tier":3,"order":12,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--noriel"},{"eventId":"flow-fest-2026","name":"Uzielito Mix","day":"2026-11-28","tier":3,"order":13,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--uzielito-mix"},{"eventId":"flow-fest-2026","name":"C.R.O","day":"2026-11-28","tier":3,"order":14,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--c-r-o"},{"eventId":"flow-fest-2026","name":"Eme Malafe","day":"2026-11-28","tier":3,"order":15,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--eme-malafe"},{"eventId":"flow-fest-2026","name":"Legallyrxx","day":"2026-11-28","tier":3,"order":16,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--legallyrxx"},{"eventId":"flow-fest-2026","name":"Six Sex","day":"2026-11-28","tier":3,"order":17,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--six-sex"},{"eventId":"flow-fest-2026","name":"Sinaka","day":"2026-11-28","tier":3,"order":18,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--sinaka"},{"eventId":"flow-fest-2026","name":"Tobal MJ","day":"2026-11-28","tier":3,"order":19,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--tobal-mj"},{"eventId":"flow-fest-2026","name":"Loyaltty","day":"2026-11-28","tier":3,"order":20,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--loyaltty"},{"eventId":"flow-fest-2026","name":"Seven Kayne","day":"2026-11-28","tier":3,"order":21,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--seven-kayne"},{"eventId":"flow-fest-2026","name":"Ivy Wavy","day":"2026-11-28","tier":4,"order":22,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--ivy-wavy"},{"eventId":"flow-fest-2026","name":"DJ Blass y DJ Aza – Sandunguero Mx","day":"2026-11-28","tier":4,"order":23,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--dj-blass-y-dj-aza-sandunguero-mx"},{"eventId":"flow-fest-2026","name":"Alanis Yuki","day":"2026-11-28","tier":4,"order":24,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--alanis-yuki"},{"eventId":"flow-fest-2026","name":"Lauty Gram","day":"2026-11-28","tier":4,"order":25,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--lauty-gram"},{"eventId":"flow-fest-2026","name":"Denna La Porri","day":"2026-11-28","tier":4,"order":26,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--denna-la-porri"},{"eventId":"flow-fest-2026","name":"Flvckka","day":"2026-11-28","tier":4,"order":27,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--flvckka"},{"eventId":"flow-fest-2026","name":"Chzter","day":"2026-11-28","tier":4,"order":28,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--chzter"},{"eventId":"flow-fest-2026","name":"Ikoniko","day":"2026-11-28","tier":4,"order":29,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--ikoniko"},{"eventId":"flow-fest-2026","name":"Pepo Mix","day":"2026-11-28","tier":4,"order":30,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--pepo-mix"},{"eventId":"flow-fest-2026","name":"Lucas Gael","day":"2026-11-28","tier":4,"order":31,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--lucas-gael"},{"eventId":"flow-fest-2026","name":"Maracuyá","day":"2026-11-28","tier":4,"order":32,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--maracuya"},{"eventId":"flow-fest-2026","name":"Daizak","day":"2026-11-28","tier":4,"order":33,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--daizak"},{"eventId":"flow-fest-2026","name":"Yurgenis","day":"2026-11-28","tier":4,"order":34,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--yurgenis"},{"eventId":"flow-fest-2026","name":"DJ Ishi","day":"2026-11-28","tier":4,"order":35,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--dj-ishi"},{"eventId":"flow-fest-2026","name":"Grupo Frontera","day":"2026-11-28","tier":1,"order":36,"start":"","end":"","stage":"","special":true,"id":"flow-fest-2026--grupo-frontera"},{"eventId":"flow-fest-2026","name":"Ozuna","day":"2026-11-29","tier":1,"order":37,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--ozuna"},{"eventId":"flow-fest-2026","name":"Kali Uchis","day":"2026-11-29","tier":1,"order":38,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--kali-uchis"},{"eventId":"flow-fest-2026","name":"Yandel Sinfónico","day":"2026-11-29","tier":1,"order":39,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--yandel-sinfonico"},{"eventId":"flow-fest-2026","name":"Trueno","day":"2026-11-29","tier":2,"order":40,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--trueno"},{"eventId":"flow-fest-2026","name":"Tito El Bambino","day":"2026-11-29","tier":2,"order":41,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--tito-el-bambino"},{"eventId":"flow-fest-2026","name":"Farruko","day":"2026-11-29","tier":2,"order":42,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--farruko"},{"eventId":"flow-fest-2026","name":"Dei V","day":"2026-11-29","tier":3,"order":43,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--dei-v"},{"eventId":"flow-fest-2026","name":"Alleh","day":"2026-11-29","tier":3,"order":44,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--alleh"},{"eventId":"flow-fest-2026","name":"J Alvarez","day":"2026-11-29","tier":3,"order":45,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--j-alvarez"},{"eventId":"flow-fest-2026","name":"Floyymenor","day":"2026-11-29","tier":3,"order":46,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--floyymenor"},{"eventId":"flow-fest-2026","name":"Yan Block","day":"2026-11-29","tier":3,"order":47,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--yan-block"},{"eventId":"flow-fest-2026","name":"Kybba","day":"2026-11-29","tier":3,"order":48,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--kybba"},{"eventId":"flow-fest-2026","name":"Ysy-A","day":"2026-11-29","tier":3,"order":49,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--ysy-a"},{"eventId":"flow-fest-2026","name":"Omar Camacho","day":"2026-11-29","tier":3,"order":50,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--omar-camacho"},{"eventId":"flow-fest-2026","name":"Martinwhite","day":"2026-11-29","tier":3,"order":51,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--martinwhite"},{"eventId":"flow-fest-2026","name":"Kidd Voodoo","day":"2026-11-29","tier":3,"order":52,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--kidd-voodoo"},{"eventId":"flow-fest-2026","name":"Lencho","day":"2026-11-29","tier":3,"order":53,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--lencho"},{"eventId":"flow-fest-2026","name":"Natt Calma","day":"2026-11-29","tier":4,"order":54,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--natt-calma"},{"eventId":"flow-fest-2026","name":"A.Chal","day":"2026-11-29","tier":4,"order":55,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--a-chal"},{"eventId":"flow-fest-2026","name":"Doony Graff","day":"2026-11-29","tier":4,"order":56,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--doony-graff"},{"eventId":"flow-fest-2026","name":"Jezzy","day":"2026-11-29","tier":4,"order":57,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--jezzy"},{"eventId":"flow-fest-2026","name":"Pablito Mix","day":"2026-11-29","tier":4,"order":58,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--pablito-mix"},{"eventId":"flow-fest-2026","name":"Low Clika","day":"2026-11-29","tier":4,"order":59,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--low-clika"},{"eventId":"flow-fest-2026","name":"Novato El Flow","day":"2026-11-29","tier":4,"order":60,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--novato-el-flow"},{"eventId":"flow-fest-2026","name":"Cael Roldán","day":"2026-11-29","tier":4,"order":61,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--cael-roldan"},{"eventId":"flow-fest-2026","name":"Robot95","day":"2026-11-29","tier":4,"order":62,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--robot95"},{"eventId":"flow-fest-2026","name":"Tuli","day":"2026-11-29","tier":4,"order":63,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--tuli"},{"eventId":"flow-fest-2026","name":"Jey F & El Gudi & Oviña","day":"2026-11-29","tier":4,"order":64,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--jey-f-el-gudi-ovina"},{"eventId":"flow-fest-2026","name":"Rivva","day":"2026-11-29","tier":4,"order":65,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--rivva"},{"eventId":"flow-fest-2026","name":"Plastikboy","day":"2026-11-29","tier":4,"order":66,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--plastikboy"},{"eventId":"flow-fest-2026","name":"Mila","day":"2026-11-29","tier":4,"order":67,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--mila"},{"eventId":"flow-fest-2026","name":"Jozzee","day":"2026-11-29","tier":4,"order":68,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--jozzee"},{"eventId":"flow-fest-2026","name":"Dam Dam","day":"2026-11-29","tier":4,"order":69,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--dam-dam"},{"eventId":"flow-fest-2026","name":"DJ Freshly","day":"2026-11-29","tier":4,"order":70,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--dj-freshly"},{"eventId":"flow-fest-2026","name":"José Alatorre","day":"2026-11-29","tier":4,"order":71,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--jose-alatorre"},{"eventId":"flow-fest-2026","name":"Mikeanyway & Tzunami presentan El Pluhh","day":"2026-11-29","tier":4,"order":72,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--mikeanyway-tzunami-presentan-el-pluhh"},{"eventId":"flow-fest-2026","name":"Bvbba Dvbs","day":"2026-11-29","tier":4,"order":73,"start":"","end":"","stage":"","special":false,"id":"flow-fest-2026--bvbba-dvbs"},{"eventId":"flow-fest-2026","name":"Justin Quiles x Lenny Tavarez presentan Superarte","day":"2026-11-29","tier":1,"order":74,"start":"","end":"","stage":"","special":true,"id":"flow-fest-2026--justin-quiles-x-lenny-tavarez-presentan-superarte"}]};
+</script>
+<script>
+/* ================= CIELO ================= */
+(() => {
+  const c=document.getElementById('sky'), x=c.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W,H,dpr,stars=[],shoot=null,last=0;
+  function size(){ dpr=Math.min(2,devicePixelRatio||1); W=innerWidth; H=innerHeight; c.width=W*dpr; c.height=H*dpr; x.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(Math.min(420,W*H/3200)); stars=[];
+    for(let i=0;i<n;i++){ const z=Math.random(); stars.push({x:Math.random()*W,y:Math.random()*H,z,r:.3+z*1.5,tw:Math.random()*6.28,sp:.4+Math.random()*1.6,
+      c:Math.random()<.12?'255,190,230':Math.random()<.2?'170,220,255':'255,255,255'}); } draw(0); }
+  function draw(t){
+    const dt=Math.min(50,t-last); last=t; x.clearRect(0,0,W,H);
+    for(const s of stars){
+      if(!reduce){ s.y+=s.z*s.z*dt*.006; if(s.y>H+2){s.y=-2;s.x=Math.random()*W;} }
+      const a=.35+.65*Math.abs(Math.sin(s.tw+t*.001*s.sp));
+      x.globalAlpha=reduce?.8:a*(.4+s.z*.6); x.fillStyle=`rgb(${s.c})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,6.283); x.fill();
+      if(s.r>1.45){ x.globalAlpha*=.25; x.beginPath(); x.arc(s.x,s.y,s.r*3.2,0,6.283); x.fill(); }
+    }
+    if(!reduce){
+      if(!shoot && Math.random()<.0025) shoot={x:Math.random()*W*.8+W*.1,y:Math.random()*H*.4,vx:-(5+Math.random()*4),vy:2.5+Math.random()*2,l:1};
+      if(shoot){ const g=x.createLinearGradient(shoot.x,shoot.y,shoot.x-shoot.vx*14,shoot.y-shoot.vy*14);
+        g.addColorStop(0,`rgba(255,255,255,${shoot.l})`); g.addColorStop(1,'rgba(255,255,255,0)');
+        x.globalAlpha=1; x.strokeStyle=g; x.lineWidth=1.6; x.beginPath(); x.moveTo(shoot.x,shoot.y); x.lineTo(shoot.x-shoot.vx*14,shoot.y-shoot.vy*14); x.stroke();
+        shoot.x+=shoot.vx; shoot.y+=shoot.vy; shoot.l-=.012; if(shoot.l<=0) shoot=null; }
+    }
+    x.globalAlpha=1;
+  }
+  function loop(t){ if(!document.hidden) draw(t); requestAnimationFrame(loop); }
+  addEventListener('resize',size); size(); if(!reduce) requestAnimationFrame(loop);
+})();
+</script>
+<script>
+(() => {
+/* ================= UTILIDADES ================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slug = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60) || 'x';
+const rid = (n=6) => Math.random().toString(36).slice(2,2+n);
+const ls = { get(k,d=null){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(e){return d;} },
+             set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} } };
+const HEART = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.6 2.3 4.5 6.2 4.5c2.3 0 3.8 1.3 4.8 2.8h2c1-1.5 2.5-2.8 4.8-2.8 3.9 0 5.8 4.1 4.2 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const TIERS = {1:'Headliners',2:'Estelares',3:'Line-up',4:'Descubrimientos'};
+const COLORS = ['#FF3DA5','#8B6CFF','#38E1FF','#FFB547','#47E6A2','#FF7A45','#E8F15A','#6FB7FF'];
+const GENRES = {
+  'Reggaetón':'#FF3DA5','Trap / Rap':'#8B6CFF','Regional mexicano':'#FFB547','Reggaetón mexa':'#3EE6C1',
+  'Dembow':'#FF7A45','R&B / Pop':'#6FB7FF','DJ set':'#E8F15A','Electrónica':'#38E1FF','Urbano':'#B9B2CC'
+};
+// Géneros sugeridos para el cartel del Flow Fest 2026 (se pueden cambiar en cada artista)
+const GENRE_GUESS = {
+  'anuel-aa':'Reggaetón','chencho-corleone':'Reggaetón','manuel-turizo':'Reggaetón','nengo-flow':'Reggaetón','zion':'Reggaetón',
+  'kevin-roldan':'Reggaetón','ken-y':'Reggaetón','ozuna':'Reggaetón','yandel-sinfonico':'Reggaetón','tito-el-bambino':'Reggaetón',
+  'farruko':'Reggaetón','j-alvarez':'Reggaetón','floyymenor':'Reggaetón','yan-block':'Reggaetón','kybba':'Reggaetón','alleh':'Reggaetón',
+  'justin-quiles-x-lenny-tavarez-presentan-superarte':'Reggaetón',
+  'noriel':'Trap / Rap','dei-v':'Trap / Rap','trueno':'Trap / Rap','ysy-a':'Trap / Rap',
+  'tito-double-p':'Regional mexicano','grupo-frontera':'Regional mexicano',
+  'el-bogueto':'Reggaetón mexa','uzielito-mix':'Reggaetón mexa','pepo-mix':'Reggaetón mexa','pablito-mix':'Reggaetón mexa','denna-la-porri':'Reggaetón mexa',
+  'tokischa':'Dembow','kali-uchis':'R&B / Pop',
+  'dj-ishi':'DJ set','dj-freshly':'DJ set','dj-blass-y-dj-aza-sandunguero-mx':'DJ set'
+};
+function genreOf(a){ return a.genre || GENRE_GUESS[slug(a.name)] || 'Urbano'; }
+const gcol = g => GENRES[g] || '#B9B2CC';
+function toast(msg){ document.querySelectorAll('.toast').forEach(t=>t.remove()); const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+
+/* ================= CREW ================= */
+const params = new URLSearchParams(location.search);
+let CREW = (params.get('crew')||ls.get('fc.crew')||'').toLowerCase().replace(/[^a-z0-9-]/g,'');
+if(!CREW) CREW = rid(6);
+ls.set('fc.crew',CREW);
+if(params.get('crew')!==CREW){ params.set('crew',CREW); try{ history.replaceState(null,'',location.pathname+'?'+params.toString()+location.hash); }catch(e){} }
+
+/* ================= DATOS (Firebase o local) ================= */
+const Store = {
+  live:false, uid:null, listeners:[], loaded:new Set(), data:{events:{},artists:{},people:{}},
+  emit(){ this.listeners.forEach(f=>f(this.data)); },
+  onChange(f){ this.listeners.push(f); },
+  async init(){
+    if(FIREBASE_CONFIG && window.firebase){
+      try{
+        firebase.initializeApp(FIREBASE_CONFIG);
+        const existing = await new Promise(r=>{ const u=firebase.auth().onAuthStateChanged(x=>{u();r(x);}); });
+        const user = existing || (await firebase.auth().signInAnonymously()).user;
+        this.uid=user.uid; this.live=true; this.fs=firebase.firestore();
+        try{ await this.fs.enablePersistence({synchronizeTabs:true}); }catch(e){}
+        for(const col of ['events','artists','people']){
+          this.fs.collection(`crews/${CREW}/${col}`).onSnapshot(snap=>{
+            const o={}; snap.forEach(d=>o[d.id]={id:d.id,...d.data()}); this.data[col]=o;
+            this.loaded.add(col); if(this.loaded.size>=3) this.emit();
+          }, err=>{ console.error(err); toast('Sin permiso para leer los datos. Revisa las reglas de Firestore.'); });
+        }
+        return;
+      }catch(e){ console.error(e); toast('No se pudo conectar a Firebase. Usando modo local.'); }
+    }
+    this.uid = ls.get('fc.localUid') || ('local-'+rid(8)); ls.set('fc.localUid',this.uid);
+    this.data = ls.get('fc.local.'+CREW, {events:{},artists:{},people:{}});
+    addEventListener('storage',e=>{ if(e.key==='fc.local.'+CREW){ this.data=ls.get(e.key,this.data); this.emit(); } });
+    setTimeout(()=>this.emit());
+  },
+  _saveLocal(){ ls.set('fc.local.'+CREW,this.data); this.emit(); },
+  async set(col,id,obj){ if(this.live) return this.fs.doc(`crews/${CREW}/${col}/${id}`).set(obj); this.data[col][id]={id,...obj}; this._saveLocal(); },
+  async merge(col,id,obj){ if(this.live) return this.fs.doc(`crews/${CREW}/${col}/${id}`).set(obj,{merge:true}); this.data[col][id]={...(this.data[col][id]||{id}),...obj}; this._saveLocal(); },
+  async del(col,id){ if(this.live) return this.fs.doc(`crews/${CREW}/${col}/${id}`).delete(); delete this.data[col][id]; this._saveLocal(); },
+  async batch(items){ // [{col,id,obj,merge}]
+    if(this.live){ for(let i=0;i<items.length;i+=400){ const b=this.fs.batch(); items.slice(i,i+400).forEach(x=>b.set(this.fs.doc(`crews/${CREW}/${x.col}/${x.id}`),x.obj,x.merge?{merge:true}:{})); await b.commit(); } return; }
+    items.forEach(x=>this.data[x.col][x.id]= x.merge?{...(this.data[x.col][x.id]||{id:x.id}),...x.obj}:{id:x.id,...x.obj}); this._saveLocal();
+  }
+};
+const safe = p => Promise.resolve(p).catch(e=>{ console.error(e); toast('No se pudo guardar. Revisa tu conexión.'); });
+
+/* ================= ESTADO ================= */
+const S = { events:[], artists:[], people:{}, cur:ls.get('fc.ev'), tab:ls.get('fc.tab','cartel'),
+  day:'all', q:'', mine:false, group:ls.get('fc.group','tier'), genre:'all',
+  tlDay:null, tlMode:'crew', minVotes:1, sim:null };
+
+Store.onChange(d=>{
+  S.events=Object.values(d.events).sort((a,b)=>(a.startDate||'').localeCompare(b.startDate||''));
+  S.artists=Object.values(d.artists); S.people=d.people;
+  if(!S.events.find(e=>e.id===S.cur)){ const up=S.events.filter(e=>daysUntil(e.endDate||e.startDate)>=0); S.cur=(up[0]||S.events[0])?.id||null; }
+  if(!me().name){ if($('#gate').hidden) showGate(); return; }
+  showApp(); render();
+});
+
+/* ================= AYUDAS ================= */
+function hue(s){ let h=0; for(const c of String(s)) h=(h*31+c.charCodeAt(0))>>>0; return h%360; }
+function initials(n){ const w=String(n).replace(/[^\p{L}\p{N} ]/gu,' ').trim().split(/\s+/); return ((w[0]||'?')[0]+(w[1]?w[1][0]:(w[0]||'')[1]||'')).toUpperCase(); }
+function avatar(a){
+  if(a.photo) return `<img src="${esc(a.photo)}" alt="" loading="lazy">`;
+  const h=hue(a.name), g=gcol(genreOf(a));
+  return `<div class="mono-av" style="background:radial-gradient(120% 90% at 80% 110%,${g}cc,transparent 60%),linear-gradient(140deg,hsl(${h} 72% 38%),hsl(${(h+50)%360} 80% 18%))">${esc(initials(a.name))}</div>`;
+}
+function pav(uid){ const p=S.people[uid]||{}; const n=p.name||'?';
+  return `<span class="pav" title="${esc(uid===Store.uid?'Tú':n)}" style="background:${esc(p.color||'#555')}">${p.photo?`<img src="${esc(p.photo)}" alt="">`:esc(initials(n))}</span>`; }
+const mins = t => { if(!t) return null; const [h,m]=String(t).split(':').map(Number); if(isNaN(h)) return null; return (h<9?h+24:h)*60+(m||0); };
+const hhmm = m => { m=((m%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+const fmtDate = (d,o={day:'numeric',month:'short'}) => { try{ return new Date(d+'T12:00:00').toLocaleDateString('es-MX',o);}catch(e){return d;} };
+function daysUntil(d){ const a=new Date(); a.setHours(0,0,0,0); const b=new Date(d+'T00:00:00'); return Math.round((b-a)/864e5); }
+const me = () => S.people[Store.uid] || {};
+const curEvent = () => S.events.find(e=>e.id===S.cur) || null;
+const evArtists = () => S.artists.filter(a=>a.eventId===S.cur);
+const myEv = () => me().events?.[S.cur] || {};
+function votesFor(aid, evId=S.cur){ const out=[]; for(const [uid,p] of Object.entries(S.people)){ const v=p.events?.[evId]?.votes; if(Array.isArray(v)&&v.includes(aid)) out.push(uid);} return out; }
+const pname = uid => uid===Store.uid ? 'Tú' : (S.people[uid]?.name || 'Alguien');
+function stack(uids,max=4){ if(!uids.length) return ''; return `<span class="stack">${uids.slice(0,max).map(pav).join('')}${uids.length>max?`<span class="more">+${uids.length-max}</span>`:''}</span>`; }
+const dayShort = (ev,id) => { const d=(ev?.days||[]).find(d=>d.id===id); return d? d.label.split(' ')[0] : ''; };
+function persist(){ ls.set('fc.tab',S.tab); ls.set('fc.group',S.group); if(S.cur) ls.set('fc.ev',S.cur); }
+function saveMine(fn){
+  const cur=structuredClone(me()); delete cur.id; cur.events=cur.events||{}; const e=cur.events[S.cur]=cur.events[S.cur]||{};
+  fn(e); S.people[Store.uid]={id:Store.uid,...cur}; render();
+  return safe(Store.set('people',Store.uid,cur));
+}
+
+/* partículas al votar */
+function burst(el){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const cols=['#FF3DA5','#8B6CFF','#38E1FF','#FFD23F','#ffffff'];
+  for(let i=0;i<22;i++){
+    const p=document.createElement('span'); p.className='burst'; const s=4+Math.random()*6;
+    p.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%5]};box-shadow:0 0 10px ${cols[i%5]};transform:translate(${cx}px,${cy}px)`;
+    document.body.appendChild(p);
+    const ang=Math.random()*6.283, d=40+Math.random()*70;
+    p.animate([{transform:`translate(${cx}px,${cy}px) scale(1)`,opacity:1},{transform:`translate(${cx+Math.cos(ang)*d}px,${cy+Math.sin(ang)*d}px) scale(.2)`,opacity:0}],
+      {duration:650+Math.random()*350,easing:'cubic-bezier(.15,.8,.3,1)'}).onfinish=()=>p.remove();
+  }
+}
+
+/* ================= ENTRADA CON NOMBRE ================= */
+function showGate(){
+  $('#app').hidden=true; $('#tabs').hidden=true; const g=$('#gate'); g.hidden=false;
+  let color=me().color||COLORS[Math.floor(Math.random()*COLORS.length)];
+  g.innerHTML=`<form class="box glass" id="gateForm">
+    <div class="brand"><span class="orb"></span>Festi Crew</div>
+    <h1>¿Cómo te <span class="grad">dicen</span>?</h1>
+    <p class="dim" style="margin:0 0 16px">Así te verá tu crew en los votos, la timeline y el modo festival.</p>
+    <div class="field"><label for="gName">Tu nombre</label><input class="inp" id="gName" maxlength="30" required autocomplete="nickname" value="${esc(me().name||'')}" placeholder="Ej. Ale"></div>
+    <div class="label" style="margin-bottom:8px">Tu color</div>
+    <div class="swatches">${COLORS.map(c=>`<button type="button" class="sw" data-c="${c}" aria-label="Color" aria-pressed="${c===color}" style="background:${c};color:${c}"></button>`).join('')}</div>
+    <div class="label" style="margin-bottom:8px">Crew</div>
+    <div class="codebox" style="margin-bottom:18px"><code>${esc(CREW)}</code><span class="dim" style="font-size:13px;flex:1;min-width:160px">Entra con el link de tus amigos para caer en su mismo crew.</span></div>
+    <button class="btn pri" type="submit" style="justify-content:center;padding:13px">Entrar al crew</button>
+    <p class="faint" style="font-size:12px;margin:12px 0 0">${Store.live?'Conectado en tiempo real.':'Modo local: los datos se guardan solo en este dispositivo hasta que configures Firebase.'}</p>
+  </form>`;
+  g.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{ color=b.dataset.c; g.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
+  $('#gateForm').onsubmit=async e=>{ e.preventDefault(); const name=$('#gName').value.trim().slice(0,30); if(!name) return;
+    const cur=structuredClone(me()); delete cur.id; Object.assign(cur,{name,color}); cur.events=cur.events||{}; cur.joined=cur.joined||new Date().toISOString();
+    S.people[Store.uid]={id:Store.uid,...cur}; await safe(Store.set('people',Store.uid,cur)); showApp(); render(); };
+  setTimeout(()=>$('#gName')?.focus(),60);
+}
+function showApp(){ $('#gate').hidden=true; $('#app').hidden=false; $('#tabs').hidden=false; }
+
+/* ================= RENDER ================= */
+function render(){
+  if($('#app').hidden) return;
+  $('#mode').textContent = Store.live ? 'En vivo' : 'Modo local'; $('#mode').className='mode'+(Store.live?' live':'');
+  $('#me').innerHTML = `<button class="mebtn" data-act="profile" title="Tu perfil">${pav(Store.uid)}<span>${esc(me().name||'')}</span></button>`;
+  renderHero();
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t.dataset.tab===S.tab));
+  const live=liveNow(); const at=$('.tab[data-tab=ahora] svg'); at && at.parentElement.querySelector('.live-dot')?.remove();
+  if(live && live.day) $('.tab[data-tab=ahora]').insertAdjacentHTML('beforeend','<span class="live-dot"></span>');
+  const v=$('#view');
+  if(!S.events.length){ v.innerHTML=`<div class="empty glass fade"><b>Tu crew aún no tiene eventos</b>Carga el Flow Fest 2026 con su cartel completo y EDC México 2027, o crea tu propio festival.
+    <div style="margin-top:16px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn pri" data-act="seed">Cargar Flow Fest y EDC</button><button class="btn" data-act="newEvent">Crear evento</button></div></div>`; return; }
+  ({ahora:renderAhora,cartel:renderCartel,timeline:renderTimeline,crew:renderCrew,eventos:renderEventos})[S.tab]();
+}
+
+function renderHero(){
+  const ev=curEvent(); const sel=$('#evpick');
+  sel.innerHTML=S.events.map(e=>`<option value="${esc(e.id)}"${e.id===S.cur?' selected':''}>${esc(e.name)}</option>`).join(''); sel.hidden=S.events.length<2;
+  if(!ev){ $('#bandKicker').textContent='Tu crew de festivales'; $('#evName').textContent='Festi Crew'; $('#evMeta').innerHTML='<span>Votos, timeline y plan compartido para ir a festivales con amigos.</span>'; $('#count').innerHTML=''; $('#rsvp').innerHTML=''; return; }
+  const d=daysUntil(ev.startDate), dEnd=daysUntil(ev.endDate||ev.startDate);
+  $('#bandKicker').textContent = d>0 ? 'Próximo festival' : dEnd>=0 ? 'Hoy hay festival' : 'Festival pasado';
+  $('#evName').textContent=ev.name;
+  const range = ev.endDate && ev.endDate!==ev.startDate ? `${fmtDate(ev.startDate,{day:'numeric'})}–${fmtDate(ev.endDate,{day:'numeric',month:'long',year:'numeric'})}` : fmtDate(ev.startDate,{day:'numeric',month:'long',year:'numeric'});
+  $('#evMeta').innerHTML=`<span><b>${esc(range)}</b></span><span>${esc(ev.venue||'Sede por confirmar')}</span><span>${evArtists().length} artistas</span>`;
+  tickCountdown();
+  const r=myEv().rsvp; const going=Object.entries(S.people).filter(([u,p])=>p.events?.[S.cur]?.rsvp==='yes').map(([u])=>u);
+  $('#rsvp').innerHTML=`<span class="q">¿Vas?</span>
+    ${[['yes','Voy'],['maybe','Tal vez'],['no','No voy']].map(([k,l])=>`<button class="rbtn" data-act="rsvp" data-v="${k}" aria-pressed="${r===k}">${l}</button>`).join('')}
+    <span class="going">${stack(going,6)}<span>${going.length?`${going.length} ${going.length===1?'confirmado':'confirmados'}`:'Nadie ha confirmado aún'}</span></span>`;
+}
+function tickCountdown(){
+  const ev=curEvent(); const box=$('#count'); if(!ev||!box) return;
+  const start=new Date(ev.startDate+'T'+(ev.gates||'13:00')+':00'), diff=start-new Date();
+  if(diff<=0){ const dEnd=daysUntil(ev.endDate||ev.startDate); box.innerHTML = dEnd>=0 ? `<div><b class="grad">HOY</b><span>a vivirlo</span></div>` : `<div><b>✓</b><span>ya pasó</span></div>`; return; }
+  const D=Math.floor(diff/864e5), H=Math.floor(diff/36e5)%24, M=Math.floor(diff/6e4)%60, Sx=Math.floor(diff/1e3)%60;
+  box.innerHTML=[[D,'días'],[H,'hrs'],[M,'min'],[Sx,'seg']].map(([n,l])=>`<div><b>${String(n).padStart(2,'0')}</b><span>${l}</span></div>`).join('');
+}
+setInterval(()=>{ if(!$('#app').hidden){ tickCountdown(); if(S.tab==='ahora' && !document.querySelector('dialog[open]')) renderAhora(true); } },1000);
+
+/* ---------------- CARTEL ---------------- */
+function renderCartel(){
+  const ev=curEvent(); let list=evArtists(); const mv=new Set(myEv().votes||[]);
+  if(S.day!=='all') list=list.filter(a=>a.day===S.day);
+  if(S.genre!=='all') list=list.filter(a=>genreOf(a)===S.genre);
+  if(S.q){ const q=slug(S.q); list=list.filter(a=>slug(a.name).includes(q)||slug(a.stage||'').includes(q)); }
+  if(S.mine) list=list.filter(a=>mv.has(a.id));
+  const present=[...new Set(evArtists().map(genreOf))].sort((a,b)=>Object.keys(GENRES).indexOf(a)-Object.keys(GENRES).indexOf(b));
+  let h=`<div class="sect"><h2>Cartel</h2><span class="dim" style="font-size:14px;margin-bottom:3px">${mv.size} elegidos por ti</span><span class="sp"></span>
+      <div class="seg" role="group" aria-label="Agrupar"><button data-act="group" data-v="tier" aria-pressed="${S.group==='tier'}">Por nivel</button><button data-act="group" data-v="genre" aria-pressed="${S.group==='genre'}">Por género</button></div></div>
+    <div class="bar">
+      <button class="chip" data-act="day" data-v="all" aria-pressed="${S.day==='all'}">Todos los días</button>
+      ${(ev.days||[]).map(d=>`<button class="chip" data-act="day" data-v="${esc(d.id)}" aria-pressed="${S.day===d.id}">${esc(d.label)}</button>`).join('')}
+      <button class="chip" data-act="mine" aria-pressed="${S.mine}">${HEART.replace('<svg','<svg width="13" height="13"')} Mis elegidos</button>
+    </div>
+    <div class="bar">
+      <button class="chip" data-act="genre" data-v="all" aria-pressed="${S.genre==='all'}">Todos los géneros</button>
+      ${present.map(g=>`<button class="chip" data-act="genre" data-v="${esc(g)}" aria-pressed="${S.genre===g}"><span class="dot" style="background:${gcol(g)};box-shadow:0 0 8px ${gcol(g)}"></span>${esc(g)}</button>`).join('')}
+    </div>
+    <div class="bar"><input class="search" id="q" type="search" placeholder="Buscar artista o escenario" value="${esc(S.q)}">
+      <button class="btn" data-act="newArtist">+ Artista</button><button class="btn" data-act="importTimes">Importar horarios</button></div>
+    <p class="note">Toca “Lo quiero ver” para elegir. Toca la foto para poner horario, escenario, género o subir una foto.</p>`;
+  if(!list.length){ h+=`<div class="empty glass"><b>${evArtists().length?'Nada con ese filtro':'Este evento aún no tiene cartel'}</b>${evArtists().length?'Prueba otro día, otro género o borra la búsqueda.':'Agrega artistas con “+ Artista” cuando salga el line-up.'}</div>`; $('#view').innerHTML=h; bindSearch(); return; }
+  const sorter=(a,b)=>(a.tier||3)-(b.tier||3)||(a.order??999)-(b.order??999)||a.name.localeCompare(b.name);
+  if(S.group==='genre'){
+    for(const g of Object.keys(GENRES)){
+      const arr=list.filter(a=>genreOf(a)===g).sort(sorter); if(!arr.length) continue;
+      const big=arr.filter(a=>(a.tier||3)<=2), small=arr.filter(a=>(a.tier||3)>2);
+      h+=`<section class="tier fade"><header><span class="dot" style="width:10px;height:10px;border-radius:50%;background:${gcol(g)};box-shadow:0 0 12px ${gcol(g)}"></span><h3 style="color:${gcol(g)}">${esc(g)}</h3><span class="faint mono">${arr.length}</span><span class="ln"></span></header>
+        ${big.length?`<div class="grid g2" style="margin-bottom:${small.length?'10px':'0'}">${big.map(a=>cardBig(a,ev,mv)).join('')}</div>`:''}
+        ${small.length?`<div class="grid g3">${small.map(a=>cardRow(a,ev,mv)).join('')}</div>`:''}</section>`;
+    }
+  } else {
+    for(const t of [1,2,3,4]){
+      const g=list.filter(a=>(a.tier||3)===t).sort(sorter); if(!g.length) continue;
+      h+=`<section class="tier fade"><header><h3>${TIERS[t]}</h3><span class="faint mono">${g.length}</span><span class="ln"></span></header>`;
+      h+= t<=2 ? `<div class="grid ${t===1?'g1':'g2'}">${g.map(a=>cardBig(a,ev,mv)).join('')}</div>` : `<div class="grid g3">${g.map(a=>cardRow(a,ev,mv)).join('')}</div>`;
+      h+=`</section>`;
+    }
+  }
+  $('#view').innerHTML=h; bindSearch();
+}
+function slotPills(a){ const p=[]; p.push(a.start?`<span class="pill mono">${esc(a.start)}${a.end?'–'+esc(a.end):''}</span>`:`<span class="pill tbd">Horario por confirmar</span>`); if(a.stage) p.push(`<span class="pill">${esc(a.stage)}</span>`); return p.join(''); }
+function voteBtn(a,mv,label=true){ const on=mv.has(a.id);
+  return `<button class="vote" data-act="vote" data-id="${esc(a.id)}" aria-pressed="${on}" aria-label="${on?'Quitar':'Elegir'} ${esc(a.name)}">${HEART}${label?`<span class="lbl">${on?'Elegido':'Lo quiero ver'}</span>`:''}<span class="mono">${votesFor(a.id).length}</span></button>`; }
+function cardBig(a,ev,mv){
+  const on=mv.has(a.id), g=genreOf(a);
+  return `<article class="card${on?' on':''}" data-card="${esc(a.id)}">
+    <button class="ph" data-act="editArtist" data-id="${esc(a.id)}" aria-label="Editar ${esc(a.name)}">${avatar(a)}
+      <div class="tagrow">${S.day==='all'&&a.day?`<span class="tag">${esc(dayShort(ev,a.day))}</span>`:''}${a.special?`<span class="tag spc">Invitado especial</span>`:''}</div>
+      <div class="over"><h4>${esc(a.name)}</h4></div></button>
+    ${on?`<span class="check">${CHECK}</span>`:''}
+    <div class="bd"><div class="slot"><span class="pill"><span class="dot" style="background:${gcol(g)}"></span>${esc(g)}</span>${slotPills(a)}</div>
+      <div class="vrow">${voteBtn(a,mv)}${stack(votesFor(a.id))}</div></div></article>`;
+}
+function cardRow(a,ev,mv){
+  const on=mv.has(a.id), g=genreOf(a);
+  const sub=[S.day==='all'?dayShort(ev,a.day):'', a.start?`${a.start}${a.end?'–'+a.end:''}`:'Sin horario', a.stage||''].filter(Boolean).join(' · ');
+  return `<div class="row${on?' on':''}"><button class="av" data-act="editArtist" data-id="${esc(a.id)}" aria-label="Editar ${esc(a.name)}">${avatar(a)}</button>
+    <div class="nm" style="min-width:0"><b title="${esc(a.name)}">${esc(a.name)}</b><small><span class="dot" style="width:7px;height:7px;border-radius:50%;flex:none;background:${gcol(g)}"></span>${esc(sub)}</small></div>${voteBtn(a,mv,false)}</div>`;
+}
+function bindSearch(){ const q=$('#q'); if(!q) return; q.addEventListener('input',e=>{ S.q=e.target.value; const pos=e.target.selectionStart; renderCartel(); const n=$('#q'); n.focus(); try{n.setSelectionRange(pos,pos);}catch(_){} }); }
+
+/* ---------------- TIMELINE ---------------- */
+function dayList(dayId){
+  const mv=new Set(myEv().votes||[]);
+  const all=evArtists().filter(a=>a.day===dayId).map(a=>({...a,votes:votesFor(a.id),mine:mv.has(a.id)}));
+  const crewPick = a => a.votes.length>=S.minVotes;
+  for(const a of all) a.pick = S.tlMode==='mine' ? a.mine : crewPick(a);
+  return all;
+}
+function withClashes(list){
+  const t=list.filter(a=>mins(a.start)!=null).sort((a,b)=>mins(a.start)-mins(b.start));
+  for(const a of t){ a.s=mins(a.start); a.e=mins(a.end)??a.s+60; if(a.e<=a.s) a.e+=1440; a.clash=[]; }
+  const picks=t.filter(a=>a.pick);
+  for(let i=0;i<picks.length;i++) for(let j=i+1;j<picks.length;j++){ const x=picks[i],y=picks[j];
+    if(y.s<x.e && x.s<y.e && (!x.stage||!y.stage||x.stage!==y.stage)){ x.clash.push(y); y.clash.push(x); } }
+  return t;
+}
+function renderTimeline(){
+  const ev=curEvent(); const days=ev.days||[];
+  if(!S.tlDay || !days.find(d=>d.id===S.tlDay)) S.tlDay=days.find(d=>daysUntil(d.date)>=0)?.id || days[0]?.id;
+  const all=dayList(S.tlDay); const timed=withClashes(all); const crewSize=Math.max(1,Object.keys(S.people).length);
+  if(S.minVotes>crewSize) S.minVotes=crewSize;
+  const picks=all.filter(a=>a.pick), clashes=timed.filter(a=>a.pick&&a.clash.length).length;
+  let h=`<div class="sect"><h2>Timeline</h2><span class="sp"></span>
+      <div class="seg"><button data-act="tlMode" data-v="crew" aria-pressed="${S.tlMode==='crew'}">Del crew</button><button data-act="tlMode" data-v="mine" aria-pressed="${S.tlMode==='mine'}">Mía</button></div></div>
+    <div class="bar">${days.map(d=>`<button class="chip" data-act="tlDay" data-v="${esc(d.id)}" aria-pressed="${S.tlDay===d.id}">${esc(d.label)}</button>`).join('')}
+      ${S.tlMode==='crew'?`<span class="chip" style="gap:10px">Mín. votos <input type="range" id="minv" min="1" max="${crewSize}" value="${S.minVotes}" style="width:90px;accent-color:#FF3DA5"><b class="mono">${S.minVotes}</b></span>`:''}</div>`;
+
+  if(timed.length){
+    // --- timeline real por escenario ---
+    const stages=[...new Set(timed.map(a=>a.stage||'Escenario'))];
+    const order=ev.stages||[]; stages.sort((a,b)=>{ const i=order.indexOf(a), j=order.indexOf(b); return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b); });
+    const t0=Math.floor(Math.min(...timed.map(a=>a.s))/60)*60, t1=Math.ceil(Math.max(...timed.map(a=>a.e))/60)*60;
+    const K=1.5, HH=(t1-t0)*K, cols=`repeat(${stages.length},minmax(150px,1fr))`;
+    let grid='';
+    for(let m=t0;m<=t1;m+=30) grid+=`<div class="hr${m%60?' half':''}" style="top:${(m-t0)*K}px"></div>`;
+    let axis=''; for(let m=t0;m<=t1;m+=60) axis+=`<span style="top:${(m-t0)*K}px">${hhmm(m)}</span>`;
+    const lanes=stages.map(st=>{
+      const items=timed.filter(a=>(a.stage||'Escenario')===st).map(a=>{
+        const cls=['blk', a.pick?'pick':'ghost', a.pick&&a.clash.length?'clash':''].join(' ');
+        const ht=Math.max(34,(a.e-a.s)*K-4);
+        return `<div class="${cls}" style="top:${(a.s-t0)*K+2}px;height:${ht}px;--gc:${gcol(genreOf(a))}" data-act="editArtist" data-id="${esc(a.id)}" title="${esc(a.name)}${a.clash.length?' · choca con '+esc(a.clash.map(c=>c.name).join(', ')):''}">
+          ${ht>=60?`<div class="av">${avatar(a)}</div>`:''}<div style="min-width:0"><b>${esc(a.name)}</b><small>${esc(a.start)}${a.end?'–'+esc(a.end):''}</small></div>
+          ${a.votes.length?`<span class="vc">♥${a.votes.length}</span>`:''}</div>`; }).join('');
+      return `<div class="lane" style="height:${HH}px">${grid}${items}</div>`;
+    }).join('');
+    const lv=liveNow(); const nowTop = lv && lv.day===S.tlDay && lv.m>=t0 && lv.m<=t1 ? `<div class="nowline" style="top:${(lv.m-t0)*K}px"></div>` : '';
+    h+=`<div class="tlwrap glass fade">
+      <div class="tlhead"><div class="tlstats"><span><b>${picks.length}</b> elegidos</span><span><b>${timed.length}</b> con horario</span>${clashes?`<span style="color:var(--bad)"><b style="color:var(--bad)">${clashes}</b> choques</span>`:'<span>sin choques</span>'}</div>
+        <span class="sp"></span><span class="faint" style="font-size:12px">Brillan los del crew · tenues los posibles</span></div>
+      <div class="tlscroll"><div class="tl" style="grid-template-columns:54px ${cols}">
+        <div class="lanehd"></div>${stages.map(s=>`<div class="lanehd">${esc(s)}</div>`).join('')}
+        <div class="axis" style="height:${HH}px;margin-top:12px">${axis}</div>
+        <div style="grid-column:2/-1;position:relative;display:grid;margin-top:12px;grid-template-columns:${cols}">${lanes}${nowTop}</div>
+      </div></div></div>`;
+    if(clashes){ const seen=new Set(); const rows=timed.filter(a=>a.pick&&a.clash.length).map(a=>{ const k=[a.id,...a.clash.map(c=>c.id)].sort().join(); if(seen.has(k)) return ''; seen.add(k);
+        const grp=[a,...a.clash].sort((x,y)=>y.votes.length-x.votes.length);
+        return `<div class="next"><div class="av">${avatar(grp[0])}</div><div style="min-width:0"><b>${grp.map(x=>esc(x.name)).join(' vs ')}</b><div class="dim" style="font-size:12px">${grp.map(x=>`${esc(x.name)} ${x.votes.length}♥`).join(' · ')}</div></div><span class="st yes">Gana ${esc(grp[0].name.split(' ')[0])}</span></div>`; }).join('');
+      h+=`<div class="panel glass" style="margin-top:14px"><h3>Choques por resolver</h3>${rows}</div>`; }
+  }
+  // --- ruta estimada para los que no tienen horario ---
+  const untimed=all.filter(a=>mins(a.start)==null && (a.pick || !timed.length && a.votes.length));
+  const routeList=(timed.length?untimed:all.filter(a=>a.pick));
+  routeList.sort((a,b)=>(b.tier||3)-(a.tier||3)||(a.order??0)-(b.order??0));
+  if(routeList.length){
+    h+=`<div class="${timed.length?'':'fade'}" style="margin-top:${timed.length?'22px':'0'}">
+      <div class="bar"><span class="estimado">◷ Orden estimado · horarios por confirmar</span><span class="faint" style="font-size:12px">Así suelen ir: descubrimientos temprano, headliners al cierre.</span></div>
+      <div class="route">${routeList.map(a=>`<div class="stop glass${a.pick?' pick':''}${(a.tier||3)===1?' head':''}">
+        <div class="av">${avatar(a)}</div>
+        <div style="min-width:0"><b>${esc(a.name)}</b><small>${esc(TIERS[a.tier||3])} · <span style="color:${gcol(genreOf(a))}">${esc(genreOf(a))}</span>${a.stage?' · '+esc(a.stage):''}</small></div>
+        <div style="display:flex;align-items:center;gap:6px">${stack(a.votes,3)}<span class="mono dim" style="font-size:13px">${a.votes.length}</span></div></div>`).join('')}</div></div>`;
+  }
+  if(!timed.length && !routeList.length){
+    h+=`<div class="empty glass fade"><b>Tu timeline está vacía</b>Ve al Cartel y elige a quién quieres ver. Aquí aparecen en orden, y cuando salgan los horarios se acomodan por escenario con los choques marcados.<div style="margin-top:14px"><button class="btn pri" data-act="go" data-v="cartel">Ir al cartel</button></div></div>`;
+  }
+  if(!timed.length) h+=`<p class="note" style="margin-top:14px">Cuando el festival publique horarios, usa <b>Importar horarios</b> en el Cartel y esto se convierte en la timeline por escenarios.</p>`;
+  $('#view').innerHTML=h;
+  $('#minv')?.addEventListener('input',e=>{ S.minVotes=+e.target.value; renderTimeline(); $('#minv')?.focus(); });
+}
+
+/* ---------------- AHORA (modo festival) ---------------- */
+function liveNow(){
+  const ev=curEvent(); if(!ev) return null;
+  const now=new Date(), m=now.getHours()*60+now.getMinutes();
+  const date=new Date(now.getTime()-now.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+  if(S.sim){ return {day:S.sim.day, m:mins(S.sim.time)}; }
+  for(const d of ev.days||[]){
+    if(d.date===date && m>=9*60) return {day:d.id,m};
+    const nx=new Date(d.date+'T12:00:00'); nx.setDate(nx.getDate()+1);
+    if(nx.toISOString().slice(0,10)===date && m<9*60) return {day:d.id,m:m+1440};
+  }
+  return {day:null,m};
+}
+function renderAhora(tickOnly){
+  const ev=curEvent(); const lv=liveNow(); const now=new Date();
+  const clock = S.sim ? S.sim.time : now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit',hour12:false});
+  const secs = S.sim ? '' : String(now.getSeconds()).padStart(2,'0');
+  if(tickOnly && $('#clockT')){ $('#clockT').innerHTML=`${esc(clock)}<span class="s">${secs}</span>`; if(now.getSeconds()!==0) return; }
+  let body='';
+  if(lv && lv.day){
+    const all=withClashes(dayList(lv.day));
+    const crew=all.filter(a=>a.pick);
+    const playing=all.filter(a=>a.s<=lv.m && lv.m<a.e).sort((a,b)=>(b.pick-a.pick)||(b.votes.length-a.votes.length));
+    const next=crew.filter(a=>a.s>lv.m).slice(0,5);
+    body=`${playing.length?playing.slice(0,3).map(a=>`<div class="live"><div class="av">${avatar(a)}</div><div style="min-width:0">
+        <div class="label" style="color:var(--bad)"><span class="eq"><i></i><i></i><i></i></span>Tocando ahora${a.pick?' · del plan':''}</div><b>${esc(a.name)}</b>
+        <div class="dim" style="font-size:13px">${esc(a.stage||'Escenario por confirmar')} · hasta ${esc(a.end||hhmm(a.e))} · quedan ${a.e-lv.m} min</div></div></div>`).join('')
+        :`<div class="dim" style="margin-top:6px">Nadie del plan está tocando en este momento.</div>`}
+      <div class="panel" style="padding:0;margin-top:18px"><div class="label" style="margin-bottom:6px">Sigue en el plan del crew</div>
+      ${next.length?next.map(a=>`<div class="next"><div class="av">${avatar(a)}</div><div style="min-width:0"><b>${esc(a.name)}</b><div class="dim" style="font-size:12px">${esc(a.start)} · ${esc(a.stage||'Escenario por confirmar')}${a.clash.length?` · <span style="color:var(--bad)">choca con ${esc(a.clash[0].name)}</span>`:''}</div></div><span class="in">${fmtIn(a.s-lv.m)}</span></div>`).join('')
+        :`<div class="dim" style="font-size:14px;padding-block:8px">${all.some(a=>a.s!=null)?'Ya no queda nadie del plan hoy.':'Faltan los horarios de este día. Cárgalos con “Importar horarios”.'}</div>`}</div>`;
+  } else {
+    const d=daysUntil(ev.startDate);
+    body=`<div class="dim" style="margin-top:8px;font-size:15px">${d>0?`Faltan <b style="color:var(--ink)">${d} días</b>. El día del festival esta pantalla te dice quién toca ahorita, qué sigue y dónde se ven.`:'El festival ya terminó.'}</div>
+      <div class="label" style="margin:18px 0 8px">Pruébalo</div>`;
+  }
+  const dsel=(ev.days||[]).map(d=>`<option value="${esc(d.id)}"${S.sim?.day===d.id?' selected':''}>${esc(d.label)}</option>`).join('');
+  const going=Object.entries(S.people).filter(([u,p])=>p.events?.[S.cur]?.rsvp==='yes').map(([u])=>u);
+  $('#view').innerHTML=`<div class="sect"><h2>Modo festival</h2></div>
+    <div class="now">
+      <div class="clock glass"><div class="label">${lv&&lv.day?esc((ev.days||[]).find(d=>d.id===lv.day)?.label||''):'Hora actual'}</div>
+        <div class="t" id="clockT">${esc(clock)}<span class="s">${secs}</span></div>
+        <div class="onstage">${body}</div>
+        <div class="sim"><span>Simular:</span><select class="inp" id="simDay">${dsel}</select><input class="inp mono" type="time" id="simTime" value="${esc(S.sim?.time||'22:00')}">
+          <button class="btn" data-act="sim">${S.sim?'Actualizar':'Ver'}</button>${S.sim?'<button class="btn ghost" data-act="simOff">Hora real</button>':''}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <div class="meet glass"><div class="label">Si nos perdemos, nos vemos en</div>
+          <div class="big ${ev.meetup?'':'faint'}">${esc(ev.meetup||'Aún no hay punto de encuentro')}</div>
+          <button class="btn" style="margin-top:14px" data-act="go" data-v="crew">${ev.meetup?'Cambiar':'Definir punto'}</button></div>
+        <div class="panel glass"><h3>Van ${going.length}</h3><div style="display:flex;flex-wrap:wrap;gap:10px">${going.length?going.map(u=>`<span style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:13px">${pav(u).replace('class="pav"','class="pav" style="width:30px;height:30px;font-size:11px"')}${esc(pname(u))}</span>`).join(''):'<span class="dim" style="font-size:14px">Nadie ha confirmado.</span>'}</div></div>
+        <div class="panel glass"><h3>Sin señal en el festival</h3><div class="dim" style="font-size:13px">Abre esta pantalla antes de entrar: queda guardada y funciona aunque no haya internet. Comparte tu ubicación desde afuera y acuerden horas fijas para verse en el punto.</div></div>
+      </div></div>`;
+}
+const fmtIn = d => d<60 ? `en ${d} min` : `en ${Math.floor(d/60)} h ${String(d%60).padStart(2,'0')}`;
+
+/* ---------------- CREW ---------------- */
+function renderCrew(){
+  const ev=curEvent(); const m=myEv(); const ppl=Object.entries(S.people);
+  const order={yes:0,maybe:1,no:2}; ppl.sort((a,b)=>(order[a[1].events?.[S.cur]?.rsvp]??3)-(order[b[1].events?.[S.cur]?.rsvp]??3));
+  const lbl={yes:['yes','Voy'],maybe:['maybe','Tal vez'],no:['no','No voy']}, tk={have:'Ya tiene boleto',buy:'Por comprar'};
+  const people=ppl.map(([u,p])=>{ const e=p.events?.[S.cur]||{}; const s=lbl[e.rsvp];
+    return `<div class="person">${pav(u)}<div style="min-width:0"><b>${esc(pname(u))}</b><small>${[tk[e.ticket]||'', e.ticketType||'', (e.votes||[]).length+' elegidos'].filter(Boolean).map(esc).join(' · ')}</small></div>${s?`<span class="st ${s[0]}">${s[1]}</span>`:'<span class="st none">—</span>'}</div>`; }).join('');
+  const ranked=evArtists().map(a=>({a,n:votesFor(a.id).length})).filter(x=>x.n>0).sort((x,y)=>y.n-x.n).slice(0,10); const top=ranked[0]?.n||1;
+  const rank=ranked.length?ranked.map((x,i)=>`<div class="rank"><span class="mono faint">${i+1}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700">${esc(x.a.name)}</span><span class="mono" style="text-align:right">${x.n}</span><span></span><div class="bar2"><i style="width:${x.n/top*100}%"></i></div></div>`).join(''):`<div class="dim" style="font-size:14px">Sin votos todavía. Ve al Cartel y elige a tus favoritos.</div>`;
+  $('#view').innerHTML=`<div class="sect"><h2>Crew</h2></div><div class="cols fade">
+    <div class="panel glass"><h3>Quién va · ${ppl.filter(([u,p])=>p.events?.[S.cur]?.rsvp==='yes').length} confirmados</h3>${people}<button class="btn" style="margin-top:14px" data-act="invite">Invitar amigos</button></div>
+    <div class="panel glass"><h3>Lo más votado</h3>${rank}</div>
+    <div class="panel glass"><h3>Mi boleto</h3>
+      <div class="field"><label for="tk">Estado</label><select class="inp" id="tk"><option value="none"${!m.ticket||m.ticket==='none'?' selected':''}>Sin definir</option><option value="have"${m.ticket==='have'?' selected':''}>Ya tengo boleto</option><option value="buy"${m.ticket==='buy'?' selected':''}>Por comprar</option></select></div>
+      <div class="field"><label for="tkt">Tipo de boleto</label><input class="inp" id="tkt" placeholder="Ej. General Fase 2, Comfort Pass" value="${esc(m.ticketType||'')}"></div>
+      ${(ev.prices||[]).length?`<div class="label" style="margin-bottom:6px">Precios publicados</div><div class="tbl"><table>${ev.prices.map(p=>`<tr><td>${esc(p.label)}</td><td>${esc(p.price)}</td></tr>`).join('')}</table></div>`:''}</div>
+    <div class="panel glass"><h3>Punto de encuentro</h3>
+      <div class="field"><label for="meet">Si nos perdemos, nos vemos en…</label><textarea class="inp" id="meet" placeholder="Ej. Torre de sonido del escenario principal, al terminar cada headliner">${esc(ev.meetup||'')}</textarea></div>
+      <button class="btn pri" data-act="saveMeet">Guardar</button>
+      <p class="faint" style="font-size:12px;margin:12px 0 0">Aparece en grande en el modo festival.</p></div></div>`;
+  $('#tk').addEventListener('change',e=>saveMine(x=>{x.ticket=e.target.value;}));
+  let tmr; $('#tkt').addEventListener('input',e=>{ clearTimeout(tmr); const v=e.target.value; tmr=setTimeout(()=>saveMine(x=>{x.ticketType=v.slice(0,80);}),700); });
+}
+
+/* ---------------- EVENTOS ---------------- */
+function renderEventos(){
+  const up=S.events.filter(e=>daysUntil(e.endDate||e.startDate)>=0), past=S.events.filter(e=>daysUntil(e.endDate||e.startDate)<0);
+  const card=e=>{ const d=daysUntil(e.startDate); const rs=Object.values(S.people).map(p=>p.events?.[e.id]?.rsvp);
+    const yes=rs.filter(x=>x==='yes').length, maybe=rs.filter(x=>x==='maybe').length; const mine=me().events?.[e.id]?.rsvp; const n=S.artists.filter(a=>a.eventId===e.id).length;
+    return `<article class="ev glass${e.id===S.cur?' cur':''}">
+      <div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap"><span class="label">${esc(fmtDate(e.startDate,{day:'numeric',month:'short',year:'numeric'}))}${e.endDate&&e.endDate!==e.startDate?' – '+esc(fmtDate(e.endDate,{day:'numeric',month:'short'})):''}</span>${d>0?`<span class="mono" style="font-size:12px;color:var(--cy)">en ${d} días</span>`:''}</div>
+      <h3>${esc(e.name)}</h3><div class="dim" style="font-size:14px">${esc(e.venue||'Sede por confirmar')} · ${n?n+' artistas':'Cartel por anunciar'}</div>
+      <div class="counts"><span class="st yes">${yes} van</span><span class="st maybe">${maybe} tal vez</span>${mine?`<span class="st ${mine}">Tú: ${{yes:'Voy',maybe:'Tal vez',no:'No voy'}[mine]}</span>`:''}</div>
+      ${(e.prices||[]).length?`<div class="tbl"><table>${e.prices.slice(0,6).map(p=>`<tr><td>${esc(p.label)}</td><td>${esc(p.price)}</td></tr>`).join('')}</table>${e.prices.length>6?`<div class="faint" style="font-size:12px;margin-top:4px">+${e.prices.length-6} precios más</div>`:''}</div>`:`<div class="faint" style="font-size:13px">Precios por anunciar</div>`}
+      ${e.notes?`<div class="dim" style="font-size:13px">${esc(e.notes)}</div>`:''}
+      <div class="acts">${e.id!==S.cur?`<button class="btn pri" data-act="pickEv" data-id="${esc(e.id)}">Abrir</button>`:`<span class="label" style="align-self:center;color:var(--cy)">Evento abierto</span>`}
+        <button class="btn" data-act="editEvent" data-id="${esc(e.id)}">Editar</button>${e.link?`<a class="btn ghost" href="${esc(e.link)}" target="_blank" rel="noopener">Boletos ↗</a>`:''}</div></article>`; };
+  $('#view').innerHTML=`<div class="sect"><h2>Eventos</h2><span class="sp"></span><button class="btn pri" data-act="newEvent">+ Nuevo evento</button></div>
+    <div class="evs fade">${up.map(card).join('')||'<div class="empty glass"><b>Sin eventos próximos</b>Agrega el siguiente festival.</div>'}</div>
+    ${past.length?`<div class="sect" style="margin-top:30px"><h2 style="font-size:18px">Pasados</h2></div><div class="evs">${past.map(card).join('')}</div>`:''}`;
+}
+
+/* ================= DIÁLOGOS ================= */
+const dlg=$('#dlg'), form=$('#dlgForm');
+let pendingPhoto, editing=null, editingEv=null;
+function openArtist(a){
+  const ev=curEvent(); editing=a?{...a}:{id:null,name:'',day:ev.days?.[0]?.id||'',tier:3}; pendingPhoto=undefined;
+  form.innerHTML=`<h2>${a?esc(a.name):'Nuevo artista'}</h2>
+    <div class="phedit"><div class="av" id="phPrev">${avatar(editing.name?editing:{name:'?'})}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start"><button type="button" class="btn" data-act="pickPhoto">Subir foto</button>${editing.photo?'<button type="button" class="btn ghost" data-act="rmPhoto">Quitar foto</button>':''}
+      <span class="faint" style="font-size:12px">Una foto ayuda a reconocerlo.</span></div></div>
+    <div class="field"><label for="fName">Nombre</label><input class="inp" id="fName" required value="${esc(editing.name)}"></div>
+    <div class="two"><div class="field"><label for="fDay">Día</label><select class="inp" id="fDay">${(ev.days||[]).map(d=>`<option value="${esc(d.id)}"${editing.day===d.id?' selected':''}>${esc(d.label)}</option>`).join('')}</select></div>
+      <div class="field"><label for="fTier">Nivel en el cartel</label><select class="inp" id="fTier">${[1,2,3,4].map(t=>`<option value="${t}"${(editing.tier||3)===t?' selected':''}>${TIERS[t]}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="fGenre">Género</label><select class="inp" id="fGenre">${Object.keys(GENRES).map(g=>`<option${genreOf(editing)===g?' selected':''}>${esc(g)}</option>`).join('')}</select></div>
+    <div class="two"><div class="field"><label for="fStart">Empieza</label><input class="inp mono" type="time" id="fStart" value="${esc(editing.start||'')}"></div>
+      <div class="field"><label for="fEnd">Termina</label><input class="inp mono" type="time" id="fEnd" value="${esc(editing.end||'')}"></div></div>
+    <div class="field"><label for="fStage">Escenario</label><input class="inp" id="fStage" list="stageList" placeholder="Por confirmar" value="${esc(editing.stage||'')}"><datalist id="stageList">${(ev.stages||[]).map(s=>`<option value="${esc(s)}">`).join('')}</datalist></div>
+    <div class="foot">${a?`<button type="button" class="btn danger l" data-act="delArtist">Eliminar</button>`:''}<button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn pri">Guardar</button></div>`;
+  form.onsubmit=e=>{ e.preventDefault(); const name=$('#fName').value.trim(); if(!name) return;
+    const data={eventId:S.cur,name,day:$('#fDay').value,tier:+$('#fTier').value,genre:$('#fGenre').value,start:$('#fStart').value,end:$('#fEnd').value,stage:$('#fStage').value.trim(),
+      special:!!editing.special, order:editing.order??999, photo: pendingPhoto===undefined?(editing.photo||''):pendingPhoto};
+    safe(Store.set('artists',editing.id||(S.cur+'--'+slug(name)+'-'+rid(4)),data)); dlg.close(); toast('Guardado'); };
+  dlg.showModal();
+}
+function openEvent(e){
+  editingEv=e?.id||null; const ev=e||{name:'',venue:'',startDate:'',endDate:'',stages:[],prices:[],link:'',notes:''};
+  form.innerHTML=`<h2>${e?'Editar evento':'Nuevo evento'}</h2>
+    <div class="field"><label for="eName">Nombre</label><input class="inp" id="eName" required value="${esc(ev.name)}" placeholder="Ej. Corona Capital 2026"></div>
+    <div class="field"><label for="eVenue">Sede</label><input class="inp" id="eVenue" value="${esc(ev.venue||'')}" placeholder="Ej. Autódromo Hermanos Rodríguez"></div>
+    <div class="two"><div class="field"><label for="eStart">Primer día</label><input class="inp" type="date" id="eStart" required value="${esc(ev.startDate||'')}"></div>
+      <div class="field"><label for="eEnd">Último día</label><input class="inp" type="date" id="eEnd" value="${esc(ev.endDate||'')}"></div></div>
+    <div class="field"><label for="eStages">Escenarios (separados por coma)</label><input class="inp" id="eStages" value="${esc((ev.stages||[]).join(', '))}" placeholder="Escenario Principal, Carpa"></div>
+    <div class="field"><label for="ePrices">Precios (uno por línea: nombre | precio)</label><textarea class="inp mono" id="ePrices" placeholder="General Fase 1 | $3,075 MXN">${esc((ev.prices||[]).map(p=>p.label+' | '+p.price).join('\n'))}</textarea></div>
+    <div class="field"><label for="eLink">Liga de boletos</label><input class="inp" id="eLink" type="url" value="${esc(ev.link||'')}" placeholder="https://"></div>
+    <div class="field"><label for="eNotes">Notas</label><input class="inp" id="eNotes" value="${esc(ev.notes||'')}" placeholder="Preventas, cómo llegar…"></div>
+    <div class="foot">${e?'<button type="button" class="btn danger l" data-act="delEvent">Eliminar</button>':''}<button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn pri">Guardar</button></div>`;
+  form.onsubmit=x=>{ x.preventDefault(); const start=$('#eStart').value, end=$('#eEnd').value||start; if(!start||!$('#eName').value.trim()) return;
+    const days=[]; for(let d=new Date(start+'T12:00:00'); d<=new Date(end+'T12:00:00') && days.length<10; d.setDate(d.getDate()+1)){
+      const iso=d.toISOString().slice(0,10), wd=d.toLocaleDateString('es-MX',{weekday:'long'}); days.push({id:iso,label:wd[0].toUpperCase()+wd.slice(1)+' '+d.getDate(),date:iso}); }
+    const data={name:$('#eName').value.trim(),venue:$('#eVenue').value.trim(),startDate:start,endDate:end,days,
+      stages:$('#eStages').value.split(',').map(s=>s.trim()).filter(Boolean),
+      prices:$('#ePrices').value.split('\n').map(l=>l.split('|')).filter(p=>p[0].trim()).map(p=>({label:p[0].trim(),price:(p[1]||'').trim()})),
+      link:$('#eLink').value.trim(),notes:$('#eNotes').value.trim(),meetup:e?.meetup||''};
+    const id=e?.id||slug(data.name)+'-'+rid(3); S.cur=id; persist(); safe(Store.set('events',id,data)); dlg.close(); toast('Evento guardado'); };
+  dlg.showModal();
+}
+function openProfile(){
+  pendingPhoto=undefined; let color=me().color||COLORS[0];
+  form.innerHTML=`<h2>Tu perfil</h2>
+    <div class="phedit"><div class="av" id="phPrev" style="border-radius:50%">${me().photo?`<img src="${esc(me().photo)}" alt="">`:`<div class="mono-av" style="background:${esc(color)}">${esc(initials(me().name||'?'))}</div>`}</div>
+      <button type="button" class="btn" data-act="pickPhoto">Subir foto</button></div>
+    <div class="field"><label for="pName">Nombre</label><input class="inp" id="pName" maxlength="30" required value="${esc(me().name||'')}"></div>
+    <div class="swatches">${COLORS.map(c=>`<button type="button" class="sw" data-c="${c}" aria-label="Color" aria-pressed="${c===color}" style="background:${c};color:${c}"></button>`).join('')}</div>
+    <div class="label" style="margin-bottom:8px">Tu crew</div><div class="codebox" style="margin-bottom:12px"><code>${esc(CREW)}</code></div>
+    <div class="field"><label for="pCrew">Cambiar a otro crew (código)</label><input class="inp mono" id="pCrew" placeholder="código de 6 letras"></div>
+    <div class="foot"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn pri">Guardar</button></div>`;
+  form.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{ color=b.dataset.c; form.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',x===b)); });
+  form.onsubmit=e=>{ e.preventDefault();
+    const code=$('#pCrew').value.trim().toLowerCase().replace(/[^a-z0-9-]/g,'');
+    if(code && code!==CREW){ ls.set('fc.crew',code); location.href=location.pathname+'?crew='+code; return; }
+    const name=$('#pName').value.trim().slice(0,30); if(!name) return;
+    const cur=structuredClone(me()); delete cur.id; cur.name=name; cur.color=color; if(pendingPhoto!==undefined) cur.photo=pendingPhoto;
+    safe(Store.set('people',Store.uid,cur)); dlg.close(); toast('Perfil guardado'); };
+  dlg.showModal();
+}
+function confirmIn(msg,onYes){
+  form.innerHTML=`<h2>${esc(msg)}</h2><p class="dim" style="margin-top:0">No se puede deshacer.</p><div class="foot"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="button" class="btn danger" id="yes">Sí, eliminar</button></div>`;
+  $('#yes').onclick=()=>{ onYes(); dlg.close(); };
+}
+function invite(){
+  const link=location.origin+location.pathname+'?crew='+CREW;
+  form.innerHTML=`<h2>Invita a tu crew</h2>
+    <p class="dim" style="margin-top:0">Manda este link. Cada quien entra con su nombre y todos ven los mismos votos, la misma timeline y el mismo punto de encuentro.</p>
+    <div class="field"><label for="invLink">Link del crew</label><input class="inp mono" id="invLink" readonly value="${esc(link)}"></div>
+    <div class="codebox" style="margin-bottom:12px"><span class="dim">Código</span><code>${esc(CREW)}</code></div>
+    ${Store.live?'':'<p class="mode" style="display:block;text-transform:none;letter-spacing:0;font-size:13px;border-radius:12px;padding:8px 10px">Estás en modo local: tus amigos no verán tus datos hasta que configures Firebase.</p>'}
+    <div class="foot"><button type="button" class="btn ghost" data-act="close">Cerrar</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent('Únete a nuestro crew para el festival: '+link)}">WhatsApp</a><button type="button" class="btn pri" id="cp">Copiar link</button></div>`;
+  $('#cp').onclick=async()=>{ try{ await navigator.clipboard.writeText(link); toast('Link copiado'); }catch(e){ $('#invLink').select(); toast('Selecciona y copia el link'); } };
+  dlg.showModal();
+}
+/* importar horarios en bloque: "21:30-22:45 Anuel AA | Escenario Coca-Cola" */
+function parseTimes(text,dayId){
+  const arts=evArtists().filter(a=>a.day===dayId);
+  const out=[];
+  for(const raw of text.split('\n')){
+    const line=raw.trim(); if(!line) continue;
+    const m=line.match(/(\d{1,2})[:.h](\d{2})\s*(?:-|–|—|a|to)?\s*(?:(\d{1,2})[:.h](\d{2}))?/i);
+    if(!m){ out.push({line,ok:false}); continue; }
+    const start=`${m[1].padStart(2,'0')}:${m[2]}`, end=m[3]?`${m[3].padStart(2,'0')}:${m[4]}`:'';
+    let rest=line.replace(m[0],' ').trim(); let stage='';
+    const sp=rest.split(/\s*[|@]\s*/); if(sp.length>1){ rest=sp[0]; stage=sp.slice(1).join(' ').trim(); }
+    const key=slug(rest.replace(/^[-–—:·\s]+|[-–—:·\s]+$/g,''));
+    let hit=arts.find(a=>slug(a.name)===key) || arts.find(a=>key && (slug(a.name).includes(key)||key.includes(slug(a.name))));
+    out.push({line,ok:!!hit,a:hit,start,end,stage});
+  }
+  return out;
+}
+function openImport(){
+  const ev=curEvent(); const day=S.day!=='all'?S.day:ev.days?.[0]?.id;
+  form.innerHTML=`<h2>Importar horarios</h2>
+    <p class="dim" style="margin-top:0;font-size:14px">Pega los horarios, uno por línea. Ejemplo: <span class="mono" style="color:var(--ink)">21:30-22:45 Anuel AA | Escenario Coca-Cola</span>. El escenario es opcional.</p>
+    <div class="field"><label for="iDay">Día</label><select class="inp" id="iDay">${(ev.days||[]).map(d=>`<option value="${esc(d.id)}"${d.id===day?' selected':''}>${esc(d.label)}</option>`).join('')}</select></div>
+    <div class="field"><label for="iText">Horarios</label><textarea class="inp mono" id="iText" style="min-height:150px" placeholder="16:00-16:40 Novato El Flow&#10;23:10-00:40 Anuel AA | Principal"></textarea></div>
+    <div class="preview" id="iPrev"><span class="faint">La vista previa aparece aquí.</span></div>
+    <div class="foot"><button type="button" class="btn ghost" data-act="close">Cancelar</button><button type="submit" class="btn pri" id="iGo" disabled>Aplicar</button></div>`;
+  const upd=()=>{ const r=parseTimes($('#iText').value,$('#iDay').value); const ok=r.filter(x=>x.ok);
+    $('#iPrev').innerHTML=r.length?r.map(x=>x.ok?`<div><span class="mono" style="color:var(--cy)">${esc(x.start)}${x.end?'–'+esc(x.end):''}</span><b>${esc(x.a.name)}</b>${x.stage?`<span class="dim">${esc(x.stage)}</span>`:''}</div>`:`<div class="x">No reconocí: ${esc(x.line)}</div>`).join(''):'<span class="faint">La vista previa aparece aquí.</span>';
+    $('#iGo').disabled=!ok.length; $('#iGo').textContent=ok.length?`Aplicar ${ok.length}`:'Aplicar'; return ok; };
+  $('#iText').addEventListener('input',upd); $('#iDay').addEventListener('change',upd);
+  form.onsubmit=async e=>{ e.preventDefault(); const ok=upd(); if(!ok.length) return;
+    const items=ok.map(x=>({col:'artists',id:x.a.id,merge:true,obj:Object.assign({start:x.start,end:x.end},x.stage?{stage:x.stage}:{})}));
+    const stages=[...new Set(ok.map(x=>x.stage).filter(Boolean))]; const evs=curEvent();
+    if(stages.some(s=>!(evs.stages||[]).includes(s))) items.push({col:'events',id:evs.id,merge:true,obj:{stages:[...new Set([...(evs.stages||[]),...stages])]}});
+    await safe(Store.batch(items)); dlg.close(); toast(`${ok.length} horarios cargados`); };
+  dlg.showModal();
+}
+
+/* foto → JPEG pequeño */
+$('#photoIn').addEventListener('change',e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f) return;
+  const img=new Image(), url=URL.createObjectURL(f);
+  img.onload=()=>{ const s=260, c=document.createElement('canvas'); c.width=s; c.height=s;
+    const k=Math.max(s/img.width,s/img.height), w=img.width*k, h=img.height*k;
+    c.getContext('2d').drawImage(img,(s-w)/2,(s-h)/2,w,h); pendingPhoto=c.toDataURL('image/jpeg',.8); URL.revokeObjectURL(url);
+    $('#phPrev').innerHTML=`<img src="${pendingPhoto}" alt="">`; };
+  img.onerror=()=>toast('No se pudo leer esa imagen.'); img.src=url;
+});
+
+async function seed(){
+  const items=[]; for(const [id,obj] of Object.entries(SEED.events)) items.push({col:'events',id,obj});
+  for(const a of SEED.artists){ const {id,...obj}=a; items.push({col:'artists',id,obj}); }
+  S.cur='flow-fest-2026'; persist(); await safe(Store.batch(items)); toast('Flow Fest 2026 y EDC México 2027 cargados');
+}
+
+/* ================= INTERACCIÓN ================= */
+$('#tabs').addEventListener('click',e=>{ const t=e.target.closest('.tab'); if(!t) return; S.tab=t.dataset.tab; persist(); render(); scrollTo({top:$('main').offsetTop-80,behavior:'smooth'}); });
+$('#evpick').addEventListener('change',e=>{ S.cur=e.target.value; S.day='all'; S.genre='all'; S.tlDay=null; S.sim=null; persist(); render(); });
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const act=b.dataset.act, id=b.dataset.id, v=b.dataset.v;
+  if(act==='vote'){ const was=(myEv().votes||[]).includes(id); if(!was) burst(b);
+    saveMine(x=>{ const s=new Set(x.votes||[]); was?s.delete(id):s.add(id); x.votes=[...s]; }); }
+  else if(act==='rsvp'){ if(v==='yes' && myEv().rsvp!=='yes') burst(b); saveMine(x=>{ x.rsvp=x.rsvp===v?null:v; }); }
+  else if(act==='day'){ S.day=v; renderCartel(); }
+  else if(act==='genre'){ S.genre=v; renderCartel(); }
+  else if(act==='group'){ S.group=v; persist(); renderCartel(); }
+  else if(act==='mine'){ S.mine=!S.mine; renderCartel(); }
+  else if(act==='tlDay'){ S.tlDay=v; renderTimeline(); }
+  else if(act==='tlMode'){ S.tlMode=v; renderTimeline(); }
+  else if(act==='go'){ S.tab=v; persist(); render(); }
+  else if(act==='sim'){ S.sim={day:$('#simDay').value,time:$('#simTime').value||'22:00'}; renderAhora(); }
+  else if(act==='simOff'){ S.sim=null; renderAhora(); }
+  else if(act==='editArtist') openArtist(S.artists.find(a=>a.id===id));
+  else if(act==='newArtist') openArtist(null);
+  else if(act==='importTimes') openImport();
+  else if(act==='pickPhoto') $('#photoIn').click();
+  else if(act==='rmPhoto'){ pendingPhoto=''; $('#phPrev').innerHTML=avatar({name:$('#fName').value||'?'}); }
+  else if(act==='delArtist'){ const a=editing; confirmIn(`¿Eliminar a ${a.name}?`,()=>safe(Store.del('artists',a.id))); }
+  else if(act==='close') dlg.close();
+  else if(act==='newEvent') openEvent(null);
+  else if(act==='editEvent') openEvent(S.events.find(x=>x.id===id));
+  else if(act==='delEvent'){ const evId=editingEv, e2=S.events.find(x=>x.id===evId);
+    confirmIn(`¿Eliminar ${e2?.name||'el evento'} y su cartel?`,()=>{ S.artists.filter(a=>a.eventId===evId).forEach(a=>safe(Store.del('artists',a.id))); safe(Store.del('events',evId)); }); }
+  else if(act==='pickEv'){ S.cur=id; S.day='all'; S.genre='all'; S.tlDay=null; S.sim=null; S.tab='cartel'; persist(); render(); scrollTo({top:0}); }
+  else if(act==='saveMeet'){ const ev=curEvent(); if(ev){ safe(Store.merge('events',ev.id,{meetup:$('#meet').value.slice(0,600)})); toast('Punto de encuentro guardado'); } }
+  else if(act==='profile') openProfile();
+  else if(act==='invite') invite();
+  else if(act==='seed') seed();
+});
+
+Store.init();
+})();
+</script>
+</body>
+</html>
