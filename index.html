@@ -466,7 +466,7 @@ const SEED = {"events":{"edc-mexico-2027":{"name":"EDC México 2027","venue":"Au
 
   /* ---- nebulosa WebGL ---- */
   const cv=document.getElementById('space');
-  const gl=cv.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
+  const gl=cv.getContext('webgl',{antialias:false,alpha:false,preserveDrawingBuffer:true,powerPreference:'low-power'});
   let draw1=null;
   if(gl){
     const vs=`attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}`;
@@ -1022,27 +1022,144 @@ function renderCrew(){
   $('#tk').addEventListener('change',e=>saveMine(x=>{x.ticket=e.target.value;}));
   let tmr; $('#tkt').addEventListener('input',e=>{ clearTimeout(tmr); const v=e.target.value; tmr=setTimeout(()=>saveMine(x=>{x.ticketType=v.slice(0,80);}),700); });
 }
-/* pulsera / credencial personal */
+/* pulsera / historia de Instagram (1080×1920) */
+let storyDay='all', storyBlob=null, storyName='festi-crew.png';
+function storyList(dayId){
+  const ev=curEvent(); const ids=new Set(myEv().votes||[]);
+  const mine=S.artists.filter(a=>ids.has(a.id)&&a.eventId===S.cur);
+  const sortDay=arr=>{ const t=arr.filter(a=>mins(a.start)!=null).sort((a,b)=>mins(a.start)-mins(b.start));
+    const u=arr.filter(a=>mins(a.start)==null).sort((a,b)=>(a.tier||3)-(b.tier||3)||(a.order??0)-(b.order??0)); return [...t,...u]; };
+  if(dayId!=='all') return [{day:(ev.days||[]).find(d=>d.id===dayId),items:sortDay(mine.filter(a=>a.day===dayId))}];
+  return (ev.days||[]).map(d=>({day:d,items:sortDay(mine.filter(a=>a.day===d.id))})).filter(g=>g.items.length);
+}
+async function drawStory(dayId){
+  try{ await Promise.all(['900 120px "Big Shoulders Display"','800 60px "Big Shoulders Display"','700 30px "JetBrains Mono"','600 30px "Barlow"'].map(f=>document.fonts.load(f))); }catch(e){}
+  const ev=curEvent(), W=1080, H=1920, c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
+  const DISP='"Big Shoulders Display","Arial Narrow",Impact,sans-serif', MONO='"JetBrains Mono",ui-monospace,monospace', BODY='"Barlow",system-ui,sans-serif';
+  const RED='#E3262F', RED2='#FF4049', GREEN='#2BD96B', INK='#F2F2F0', DIM='#A6A6A3';
+  const cover=(img)=>{ const iw=img.width, ih=img.height; if(!iw||!ih) return; const k=Math.max(W/iw,H/ih); x.drawImage(img,(W-iw*k)/2,(H-ih*k)/2,iw*k,ih*k); };
+  // fondo: el mismo universo de la app
+  x.fillStyle='#030304'; x.fillRect(0,0,W,H);
+  try{ cover(document.getElementById('space')); }catch(e){}
+  let seed=hue(Store.uid+dayId); const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
+  for(let i=0;i<650;i++){ const r=rnd()<.9?rnd()*1.6+.4:rnd()*2.4+1.4; x.globalAlpha=.3+rnd()*.7; x.fillStyle=['#fff','#cfd8ff','#ffe2c4','#ffc9a8'][(rnd()*4)|0]; x.beginPath(); x.arc(rnd()*W,rnd()*H,r,0,6.283); x.fill(); }
+  x.globalAlpha=1;
+  let g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'rgba(0,0,0,.25)'); g.addColorStop(.45,'rgba(0,0,0,.55)'); g.addColorStop(1,'rgba(0,0,0,.85)'); x.fillStyle=g; x.fillRect(0,0,W,H);
+  g=x.createRadialGradient(W*.9,H*.18,0,W*.9,H*.18,700); g.addColorStop(0,'rgba(227,38,47,.42)'); g.addColorStop(1,'rgba(227,38,47,0)'); x.fillStyle=g; x.fillRect(0,0,W,H);
+
+  // pulsera de tela cruzando la parte de arriba
+  const dObj=dayId==='all'?null:(ev.days||[]).find(d=>d.id===dayId);
+  const tabTxt=dObj?dObj.label.toUpperCase():'FULL ACCESS';
+  x.save(); x.translate(W/2,345); x.rotate(-.075);
+  x.shadowColor='rgba(0,0,0,.7)'; x.shadowBlur=40; x.shadowOffsetY=18;
+  g=x.createLinearGradient(0,-62,0,62); g.addColorStop(0,'#9e1219'); g.addColorStop(.5,RED); g.addColorStop(1,'#7a0e14');
+  x.fillStyle=g; x.fillRect(-760,-62,1520,124); x.shadowColor='transparent';
+  x.globalAlpha=.16; x.fillStyle='#000'; for(let i=-760;i<760;i+=6) x.fillRect(i,-62,2,124);
+  x.globalAlpha=.10; x.fillStyle='#fff'; for(let j=-60;j<62;j+=5) x.fillRect(-760,j,1520,1);
+  x.globalAlpha=1; x.fillStyle=GREEN; x.fillRect(-760,-62,1520,8); x.fillRect(-760,54,1520,8);
+  x.fillStyle='#000'; for(let i=-760;i<760;i+=60){ x.fillRect(i,-62,14,8); x.fillRect(i+30,54,14,8); }
+  x.font=`700 30px ${MONO}`; x.fillStyle='rgba(255,255,255,.92)'; x.textBaseline='middle';
+  const motto=`${(ev.name||'').toUpperCase()}  ✦  CREW ACCESS  ✦  `; let mx=-760; while(mx<760){ x.fillText(motto,mx,2); mx+=x.measureText(motto).width; }
+  // ficha de plástico
+  x.shadowColor='rgba(0,0,0,.6)'; x.shadowBlur=24; x.shadowOffsetY=10;
+  x.fillStyle='#0b0b0d'; x.beginPath(); x.roundRect(140,-96,300,192,26); x.fill(); x.shadowColor='transparent';
+  x.strokeStyle='rgba(255,255,255,.18)'; x.lineWidth=2; x.stroke();
+  g=x.createLinearGradient(140,-96,440,96); g.addColorStop(0,'rgba(255,255,255,.12)'); g.addColorStop(.5,'rgba(255,255,255,0)'); x.fillStyle=g; x.beginPath(); x.roundRect(140,-96,300,192,26); x.fill();
+  x.fillStyle=GREEN; x.font=`700 22px ${MONO}`; x.textAlign='center'; x.fillText('CREW ACCESS',290,-52);
+  x.fillStyle=INK; let fs=64; x.font=`900 ${fs}px ${DISP}`; while(x.measureText(tabTxt).width>260&&fs>30){ fs-=2; x.font=`900 ${fs}px ${DISP}`; } x.fillText(tabTxt,290,8);
+  x.fillStyle=DIM; x.font=`700 20px ${MONO}`; x.fillText(CREW.toUpperCase(),290,62);
+  x.restore(); x.textAlign='left'; x.textBaseline='alphabetic';
+
+  // encabezado
+  const L=84, maxW=W-L*2;
+  const fit=(t,weight,size,family,max)=>{ let s=size; x.font=`${weight} ${s}px ${family}`; while(x.measureText(t).width>max&&s>20){ s-=2; x.font=`${weight} ${s}px ${family}`; } return s; };
+  x.fillStyle=DIM; x.font=`700 28px ${MONO}`; x.fillText((ev.venue||'').toUpperCase().slice(0,48),L,560);
+  const title=dObj?dObj.label.toUpperCase():'MI '+(ev.name||'FESTIVAL').toUpperCase().replace(/^COCA-COLA\s+/,'');
+  const ts=fit(title,900,190,DISP,maxW-40); x.fillStyle=INK; x.fillText(title,L,560+ts*.95);
+  const tw=x.measureText(title).width; x.fillStyle=RED; x.shadowColor=RED; x.shadowBlur=24; x.fillRect(L+tw+16,560+ts*.95-ts*.28,24,24); x.shadowBlur=0; x.shadowColor='transparent';
+  let y=560+ts*.95+56;
+  const range=dObj?fmtDate(dObj.date,{weekday:'long',day:'numeric',month:'long'}):(ev.endDate&&ev.endDate!==ev.startDate?`${fmtDate(ev.startDate,{day:'numeric'})}–${fmtDate(ev.endDate,{day:'numeric',month:'long',year:'numeric'})}`:fmtDate(ev.startDate,{day:'numeric',month:'long'}));
+  x.fillStyle=RED2; x.font=`700 30px ${MONO}`; x.fillText(range.toUpperCase(),L,y);
+
+  // quién
+  y+=70; const p=me(); const col=p.color||RED;
+  x.fillStyle=col; x.beginPath(); x.arc(L+44,y+38,44,0,6.283); x.fill();
+  x.fillStyle='#fff'; x.font=`900 40px ${DISP}`; x.textAlign='center'; x.fillText(initials(p.name||'?'),L+44,y+52); x.textAlign='left';
+  x.strokeStyle=RED; x.lineWidth=4; x.beginPath(); x.arc(L+44,y+38,48,0,6.283); x.stroke();
+  const nm=(p.name||'').toUpperCase(); fit(nm,900,96,DISP,maxW-260); x.fillStyle=INK; x.fillText(nm,L+118,y+70);
+  const groups=storyList(dayId); const total=groups.reduce((n,g)=>n+g.items.length,0);
+  const rs={yes:'CONFIRMADO',maybe:'TAL VEZ',no:'NO VA'}[myEv().rsvp];
+  if(rs){ x.font=`700 24px ${MONO}`; const w=x.measureText(rs).width+28, bx=W-L-w; x.fillStyle=myEv().rsvp==='yes'?'rgba(43,217,107,.18)':'rgba(227,38,47,.2)'; x.beginPath(); x.roundRect(bx,y+20,w,48,8); x.fill(); x.fillStyle=myEv().rsvp==='yes'?GREEN:RED2; x.fillText(rs,bx+14,y+53); }
+
+  // lineup
+  y+=130; x.fillStyle=DIM; x.font=`700 26px ${MONO}`; x.fillText(`VOY A VER · ${total} ${total===1?'SHOW':'SHOWS'}`,L,y);
+  x.fillStyle='rgba(255,255,255,.15)'; x.fillRect(L,y+20,maxW,2);
+  const top=y+44, bottom=1515, hdr=dayId==='all'?groups.length*54:0;
+  const maxRows=dayId==='all'?10:8; let shown=0; const rows=Math.min(total,maxRows);
+  const rowH=Math.max(46,Math.min(124,(bottom-top-hdr)/Math.max(rows,1))); const two=rowH>=88;
+  const big=Math.round(two?rowH*.5:rowH*.66);
+  y=top; let n=0;
+  if(!total){ x.fillStyle=DIM; x.font=`600 40px ${BODY}`; x.fillText('Aún no eliges artistas para este día.',L,y+80); }
+  for(const gp of groups){
+    if(shown>=maxRows) break;
+    if(dayId==='all'){ x.fillStyle=GREEN; x.font=`700 26px ${MONO}`; x.fillText(gp.day.label.toUpperCase(),L,y+36); y+=54; }
+    for(const a of gp.items){
+      if(shown>=maxRows) break; n++; shown++;
+      const head=(a.tier||3)===1, base=two?y+big*.98:y+rowH*.72;
+      x.fillStyle=RED2; x.font=`700 ${Math.round(big*.46)}px ${MONO}`; x.fillText(String(n).padStart(2,'0'),L,base);
+      const nx=L+Math.round(big*1.1), name=a.name.toUpperCase();
+      const time=a.start?`${a.start}${a.end?'–'+a.end:''}`:'';
+      const meta=[time,a.stage||''].filter(Boolean).join(' · ').toUpperCase();
+      x.font=`700 ${Math.round(big*.42)}px ${MONO}`; const tw2=(!two&&time)?x.measureText(time).width+24:0;
+      fit(name,head?900:800,big*(head?1.08:.95),DISP,maxW-(nx-L)-tw2);
+      x.fillStyle=head?'#fff':INK; if(head){ x.shadowColor='rgba(227,38,47,.8)'; x.shadowBlur=18; }
+      x.fillText(name,nx,base); x.shadowBlur=0; x.shadowColor='transparent';
+      if(two && meta){ x.fillStyle=DIM; fit(meta,700,Math.round(big*.4),MONO,maxW-(nx-L)); x.fillText(meta,nx,base+Math.round(big*.62)); }
+      else if(!two && time){ x.fillStyle=DIM; x.font=`700 ${Math.round(big*.42)}px ${MONO}`; x.textAlign='right'; x.fillText(time,W-L,base); x.textAlign='left'; }
+      y+=rowH;
+    }
+  }
+  if(total>shown){ x.fillStyle=DIM; x.font=`700 28px ${MONO}`; x.fillText(`+${total-shown} MÁS`,L,Math.min(y+30,1548)); }
+
+  // pie: código de barras y marca
+  const fy=1590; x.fillStyle='rgba(255,255,255,.15)'; x.fillRect(L,fy-20,maxW,2);
+  let bx=L; seed=hue(Store.uid+S.cur); while(bx<L+330){ const w=1+((rnd()*4)|0)*2; if(rnd()>.2){ x.fillStyle=INK; x.fillRect(bx,fy,w,80); } bx+=w+2+((rnd()*2)|0)*2; }
+  x.fillStyle=DIM; x.font=`700 22px ${MONO}`; x.fillText(CREW.toUpperCase().split('').join(' '),L,fy+110);
+  x.textAlign='right'; x.fillStyle=INK; x.font=`900 64px ${DISP}`; x.fillText('FESTI CREW',W-L,fy+56);
+  x.fillStyle=GREEN; x.font=`700 22px ${MONO}`; x.fillText('ARMA TU PLAN CON TU CREW',W-L,fy+96); x.textAlign='left';
+  x.fillStyle=RED; x.beginPath(); x.arc(W-L-410,fy+36,16,0,6.283); x.fill(); x.strokeStyle=GREEN; x.lineWidth=3; x.beginPath(); x.ellipse(W-L-410,fy+36,30,9,-.35,0,6.283); x.stroke();
+  return c;
+}
+async function renderStoryPreview(){
+  const img=$('#storyImg'); if(!img) return; img.style.opacity=.4; $('#shareBtn').disabled=true;
+  const c=await drawStory(storyDay); const d=storyDay==='all'?'todo':slug((curEvent().days||[]).find(x=>x.id===storyDay)?.label||storyDay);
+  storyName=`festi-crew-${slug(curEvent().name)}-${d}.png`;
+  storyBlob=await new Promise(r=>c.toBlob(r,'image/png'));
+  if(img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+  const url=URL.createObjectURL(storyBlob); img.src=url; img.dataset.url=url; img.style.opacity=1; $('#shareBtn').disabled=false;
+}
+function shareStory(){
+  if(!storyBlob) return;
+  const file=new File([storyBlob],storyName,{type:'image/png'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    navigator.share({files:[file]}).catch(e=>{ if(e&&e.name!=='AbortError') saveStory(); });
+  } else saveStory();
+}
+function saveStory(){
+  if(!storyBlob) return;
+  const a=document.createElement('a'); a.href=URL.createObjectURL(storyBlob); a.download=storyName; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000);
+  toast('Imagen guardada. Súbela a tu historia desde la galería.');
+}
 function openBand(){
-  const ev=curEvent(); const m=myEv(); const mine=(m.votes||[]).map(id=>S.artists.find(a=>a.id===id)).filter(Boolean).sort((a,b)=>(a.tier||3)-(b.tier||3)||(a.order??0)-(b.order??0));
-  const top=mine.slice(0,4);
-  let seed=hue(Store.uid+S.cur); const rnd=()=>{ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; };
-  const bars=Array.from({length:30},()=>`<i style="width:${1+Math.floor(rnd()*3)}px;opacity:${rnd()<.18?0:1}"></i>`).join('');
-  const range=ev.endDate&&ev.endDate!==ev.startDate?`${fmtDate(ev.startDate,{day:'numeric'})}–${fmtDate(ev.endDate,{day:'numeric',month:'short'})}`:fmtDate(ev.startDate);
-  const rs={yes:'Confirmado',maybe:'Tal vez',no:'No va'}[m.rsvp]||'Sin confirmar';
+  const ev=curEvent(); const days=ev.days||[];
+  if(storyDay!=='all' && !days.find(d=>d.id===storyDay)) storyDay='all';
   form.innerHTML=`<h2>Mi pulsera</h2>
-    <div class="band">
-      <div class="main"><span class="evn">${esc(ev.name)} · ${esc(range)}</span>
-        <div class="who">${pav(Store.uid)}<b>${esc(me().name||'')}</b></div>
-        <div class="label" style="margin-bottom:6px">${top.length?'Voy a ver':'Aún no eliges artistas'}</div>
-        <div class="top3">${top.map((a,i)=>`<div><span>0${i+1}</span>${esc(a.name)}</div>`).join('')}</div>
-        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><span class="st ${m.rsvp||'none'}">${rs}</span>${mine.length>top.length?`<span class="st none">+${mine.length-top.length} más</span>`:''}</div>
-      </div>
-      <div class="stub"><span class="tier1">CREW ACCESS</span><div class="bars">${bars}</div><span class="code">${esc(CREW.toUpperCase())}</span></div>
-    </div>
-    <p class="dim" style="font-size:13px;margin:0 0 6px">Haz captura de pantalla y súbela a tu historia o al grupo.</p>
-    <div class="foot"><button type="button" class="btn ghost" data-act="close">Cerrar</button>${top.length?'':'<button type="button" class="btn pri" data-act="go" data-v="cartel">Elegir artistas</button>'}</div>`;
-  dlg.showModal();
+    <div class="seg" style="margin-bottom:12px;align-self:flex-start">${days.map(d=>`<button type="button" data-act="storyDay" data-v="${esc(d.id)}" aria-pressed="${storyDay===d.id}">${esc(d.label)}</button>`).join('')}<button type="button" data-act="storyDay" data-v="all" aria-pressed="${storyDay==='all'}">Todo el fest</button></div>
+    <div style="display:grid;place-items:center;margin-bottom:12px"><img id="storyImg" alt="Tu historia de Instagram" style="width:min(100%,300px);aspect-ratio:9/16;border-radius:14px;border:1px solid var(--edge-hi);background:#000;transition:opacity .2s;box-shadow:0 20px 50px -20px rgba(227,38,47,.6)"></div>
+    <p class="dim" style="font-size:13px;margin:0 0 10px">Tamaño historia de Instagram. Al compartir, elige <b>Instagram → Historia</b>.</p>
+    <div class="foot"><button type="button" class="btn ghost l" data-act="close">Cerrar</button><button type="button" class="btn" data-act="saveStory">Guardar</button><button type="button" class="btn pri" id="shareBtn" data-act="shareStory" disabled>Compartir</button></div>`;
+  dlg.showModal(); renderStoryPreview();
 }
 
 /* ---------------- EVENTOS ---------------- */
@@ -1214,6 +1331,9 @@ document.addEventListener('click',e=>{
   else if(act==='go'){ if(dlg.open) dlg.close(); S.tab=v; persist(); render(); }
   else if(act==='zoom'){ S.zoom=+v; renderTimeline(); }
   else if(act==='band') openBand();
+  else if(act==='storyDay'){ storyDay=v; form.querySelectorAll('[data-act=storyDay]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===v)); renderStoryPreview(); }
+  else if(act==='shareStory') shareStory();
+  else if(act==='saveStory') saveStory();
   else if(act==='sim'){ S.sim={day:$('#simDay').value,time:$('#simTime').value||'22:00'}; renderAhora(); }
   else if(act==='simOff'){ S.sim=null; renderAhora(); }
   else if(act==='editArtist') openArtist(S.artists.find(a=>a.id===id));

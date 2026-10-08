@@ -2,7 +2,7 @@
    - La app (index.html) se pide primero a la red para recibir actualizaciones; si no hay señal, sale de la caché.
    - Fuentes, iconos y el SDK de Firebase salen de la caché (cambian poco).
    - Los datos del crew los guarda Firestore en el teléfono; este archivo no los toca. */
-const CACHE = 'festi-crew-v3';
+const CACHE = 'festi-crew-v4';
 const CORE = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png', './icons/favicon-32.png'];
 
